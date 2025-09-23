@@ -39,20 +39,20 @@ Join our community of developers creating universal apps.
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
 
-  ## Run the Node server and MongoDB database locally with Docker Desktop
+## Run the Node server and MongoDB database locally with Docker Desktop
 
-  Ensure you have installed Docker Desktop on your machine.
+Ensure you have installed Docker Desktop on your machine.
 
-  1) Navigate to server directory
+1) Navigate to server directory
+
+```bash
+cd server
+```
+
+2) Build and run the Docker containers
+
+ ```bash
+ docker-compose up --build
+ ```
  
-  ```bash
-  cd server
-  ```
-
-  2) Build and run the Docker containers
-
-    ```bash
-    docker-compose up --build
-    ```
-    
-  3) Now you can make requests to the development server at http://localhost:3000/api/
+3) Now you can make requests to the development server at http://localhost:3000/api/
