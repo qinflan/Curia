@@ -10,8 +10,7 @@ export default function Index() {
         alignItems: "center",
       }}
     >
-      <Text>Get to know how politics are actually happening around you.</Text>
+      <Text>Sign up for a new account now.</Text>
     </View>
   );
 }
-
