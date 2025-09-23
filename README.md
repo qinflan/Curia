@@ -1,4 +1,4 @@
-# Welcome to your Expo app 👋
+# Welcome to our Curia app 👋
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
@@ -25,16 +25,6 @@ In the output, you'll find options to open the app in a
 
 You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
 ## Learn more
 
 To learn more about developing your project with Expo, look at the following resources:
@@ -48,3 +38,21 @@ Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+
+  ## Run the Node server and MongoDB database locally with Docker Desktop
+
+  Ensure you have installed Docker Desktop on your machine.
+
+  1) Navigate to server directory
+ 
+  ```bash
+  cd server
+  ```
+
+  2) Build and run the Docker containers
+
+    ```bash
+    docker-compose up --build
+    ```
+    
+  3) Now you can make requests to the development server at http://localhost:3000/api/
