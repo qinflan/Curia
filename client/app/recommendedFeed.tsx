@@ -1,6 +1,6 @@
 import { Text, View } from "react-native";
 
-export default function Login() {
+export default function RecommendedFeed() {
   return (
 
     <View
@@ -10,7 +10,7 @@ export default function Login() {
         alignItems: "center",
       }}
     >
-      <Text>Login with your existing account.</Text>
+      <Text>Edit this to create recommended feed screen for authenticated users.</Text>
     </View>
   );
 }
