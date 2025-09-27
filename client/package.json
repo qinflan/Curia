@@ -42,6 +42,10 @@
     "eslint": "^9.25.0",
     "eslint-config-expo": "~10.0.0",
     "expo-av": "^16.0.7",
+    "expo-blur": "^15.0.7",
+    "react-native-svg": "^15.13.0",
+    "react-native-svg-transformer": "^1.5.1",
+    "react-native-vector-icons": "^10.3.0",
     "typescript": "~5.9.2"
   },
   "private": true
