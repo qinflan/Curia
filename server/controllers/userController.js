@@ -8,6 +8,9 @@ class UserController {
     async loginUser(req, res) {
         return UserService.loginUser(req, res);
     }
+    async refresh(req, res) {
+        return UserService.refresh(req, res);
+    }
 }
 
 
