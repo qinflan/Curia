@@ -1,11 +1,20 @@
 const mongoose = require("mongoose");
 
-const userSchema = new mongoose.Schema({
-  username: { 
-    type: String, 
-    required: true, 
-    unique: true 
+const IUser = {
+  email: String,
+  password: String,
+  setupComplete: Boolean,
+  state: String,
+  preferences: {
+    interests: [String],
+    subscription: Boolean,
+    notifications: Boolean,
+    theme: String,
   },
+  createdAt: Date,
+}
+
+const userSchema = new mongoose.Schema({
   email: { 
     type: String, 
     required: true, 
@@ -31,7 +40,7 @@ const userSchema = new mongoose.Schema({
       type: String, 
       enum: ['light', 'dark'], 
       default: 'light' 
-    }
+    },
   },
   createdAt: { 
     type: Date, 
@@ -40,3 +49,4 @@ const userSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model("User", userSchema);
+module.exports.IUser = IUser;
