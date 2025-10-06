@@ -60,6 +60,58 @@ class UserService {
         }
     };
 
+    async getUser(req, res) {
+        const userId = req.user.userId;
+        try {
+            const user = await User.findById(userId).select('-password');
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+            return res.status(200).json(user);
+        } catch (error) {
+            return res.status(500).json({ message: 'Server error', error });
+        }
+    }
+
+    async deleteUser(req, res) {
+        const userId = req.user.userId;
+        try {
+            const user = await User.findByIdAndDelete(userId);
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+            return res.status(200).json({ message: 'User deleted successfully' });
+        } catch (error) {
+            return res.status(500).json({ message: 'Server error', error });
+        }
+    }
+
+    async updateUser(req, res) {
+        const userId = req.user.userId;
+        const updates = { ...req.body };
+
+        try {
+            if (updates.password) {
+                updates.password = await bcrypt.hash(updates.password, 10);
+            }
+
+            const updatedUser = await User.findByIdAndUpdate(
+                userId,
+                { $set: updates },
+                { new: true, runValidators: true, context: 'query'}
+            ).select('-password');
+            
+            if (!updatedUser) {
+                return res.status(404).json({message: 'User not found'});
+            }
+
+            return res.status(200).json(updatedUser);
+
+        } catch (error) {
+            return res.status(500).json({message: 'Server error', error});
+        }
+    }
+
     async refresh(req, res) {
         try {
             const accessToken = jwt.generateAccessToken({
