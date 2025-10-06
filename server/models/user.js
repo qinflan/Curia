@@ -1,19 +1,5 @@
 const mongoose = require("mongoose");
 
-const IUser = {
-  email: String,
-  password: String,
-  setupComplete: Boolean,
-  state: String,
-  preferences: {
-    interests: [String],
-    subscription: Boolean,
-    notifications: Boolean,
-    theme: String,
-  },
-  createdAt: Date,
-}
-
 const userSchema = new mongoose.Schema({
   email: { 
     type: String, 
@@ -49,4 +35,3 @@ const userSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model("User", userSchema);
-module.exports.IUser = IUser;
