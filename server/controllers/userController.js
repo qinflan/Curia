@@ -11,6 +11,15 @@ class UserController {
     async refresh(req, res) {
         return UserService.refresh(req, res);
     }
+    async getUser(req, res) {
+        return UserService.getUser(req, res);
+    }
+    async deleteUser(req, res) {
+        return UserService.deleteUser(req, res);
+    }
+    async updateUser(req, res) {
+        return UserService.updateUser(req, res);
+    }
 }
 
 

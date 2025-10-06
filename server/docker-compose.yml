@@ -5,8 +5,8 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - NODE_ENV=development
-      - MONGO_URI=mongodb://mongo:27017/curia
+      NODE_ENV: development
+      MONGO_URI: mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongo:27017/${MONGO_DB_NAME}?authSource=admin
     depends_on:
       - mongo
     volumes:
@@ -20,6 +20,9 @@ services:
     restart: always
     ports:
       - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
     volumes:
       - mongo_data:/data/db
 
