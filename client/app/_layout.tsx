@@ -1,6 +1,7 @@
 import { Stack } from "expo-router";
 import { useFonts } from "expo-font";
 import { Text } from "react-native";
+import { AuthProvider } from "../hooks/AuthContext";
 
 export default function RootLayout() {
 
@@ -22,19 +23,21 @@ export default function RootLayout() {
   
   // render app
   return (
-  <Stack>
-    <Stack.Screen name="index" options={{ headerShown: false }} />
-    <Stack.Screen name="login" options={{ headerShown: false }} />
-    <Stack.Screen name="signup" options={{ headerShown: false }} />
+    <AuthProvider>
+      <Stack>
+        <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="login" options={{ headerShown: false }} />
+        <Stack.Screen name="signup" options={{ headerShown: false }} />
 
-    {/* protect these routes once JWT works */}
-    <Stack.Screen name="faq" options={{ headerShown: false }} />
-    <Stack.Screen name="accountSetup" options={{ headerShown: false }} />
-    <Stack.Screen name="homeDashboard" options={{ headerShown: false }} />
-    <Stack.Screen name="recommendedFeed" options={{ headerShown: false }} />
-    <Stack.Screen name="accountSettings" options={{ headerShown: false }} />
-    {/*  */}
-    
-  </Stack>
+        {/* protect these routes once JWT works */}
+        <Stack.Screen name="faq" options={{ headerShown: false }} />
+        <Stack.Screen name="accountSetup" options={{ headerShown: false }} />
+        <Stack.Screen name="homeDashboard" options={{ headerShown: false }} />
+        <Stack.Screen name="recommendedFeed" options={{ headerShown: false }} />
+        <Stack.Screen name="accountSettings" options={{ headerShown: false }} />
+        {/*  */}
+        
+      </Stack>
+    </AuthProvider>
   );
 }
