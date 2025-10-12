@@ -7,6 +7,12 @@ const userSchema = new mongoose.Schema({
     required: true, 
     unique: true
   },
+  firstName: {
+    type: String
+  },
+  lastname: {
+    type: String
+  },
   password: { 
     type: String, 
     required: true 
@@ -28,8 +34,14 @@ const userSchema = new mongoose.Schema({
   },
   preferences: {
     interests: [{ type: String, enum: FED_POLICY_AREAS }],
-    subscription: Boolean, // temp for dev
-    notifications: Boolean, // add FCM logic later and likely store a device obj?
+    subscription: {
+      type: Boolean,
+      default: false
+    },
+    notifications: { // add FCM logic later and likely store a device obj?
+      type: Boolean,
+      default: false
+    }, 
     theme: { 
       type: String, 
       enum: ['light', 'dark'], 
