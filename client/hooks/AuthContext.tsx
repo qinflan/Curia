@@ -11,10 +11,10 @@ import {
 
 
 export type User = {
-    email: string,
     id: string,
-    firstName: string,
-    lastName: string,
+    email: string,
+    firstName?: string,
+    lastName?: string,
     setupComplete: boolean,
     city?: string,
     state?: string,
@@ -57,12 +57,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 const token = await getToken("access_token");
                 if (token) {
                     setAccessToken(token);
-                    await  loadUser();
+                    await loadUser();
                 }
             } catch (error) {
                 console.warn("Error restoring session:", error);
-            } finally {
                 setLoading(false);
+            } finally {
+              setLoading(false);
             }
         };
         initializeAuth();
@@ -108,7 +109,6 @@ const login = async (email: string, password: string) => {
       setLoading(false);
     }
   };
-
 
   const refresh = async () => {
     try {
