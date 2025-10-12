@@ -1,42 +1,52 @@
-import { Stack, useRouter, useSegments } from "expo-router";
+import { Stack, useRouter, useSegments, useRootNavigationState } from "expo-router";
 import { useEffect } from "react";
 import { useFonts } from "expo-font";
-import { Text } from "react-native";
+import { Text, View } from "react-native";
 import { AuthProvider, useAuth } from "../hooks/AuthContext";
+import Navbar from "@/components/navbar";
 
 function AppNavigator() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const segments = useSegments();
+  const navigationState = useRootNavigationState();
 
   // segment public (unauthenticated) routes
   const publicRoutes = ["index", "login", "signup"];
+  const protectedRoutes = ["homeDashboard", "recommendedFeed", "accountSettings"];
 
   useEffect(() => {
+    if (!navigationState?.key) return;
     if (loading) return;
-    const currentRoute = segments[segments.length - 1];
+    const currentRoute = segments[segments.length - 1] || "index";
     if (!user && !publicRoutes.includes(currentRoute)) {
       router.replace("/");
     }
     if (user && publicRoutes.includes(currentRoute)) {
       router.replace("/homeDashboard");
     }
-  }, [user, loading, segments]);
+  }, [user, loading, navigationState?.key, segments]);
 
   if (loading) return <Text>Loading...</Text>;
+  const currentRoute = segments[segments.length - 1];
+  const showNavbar = protectedRoutes.includes(currentRoute);
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      {/* All screens are always available */}
-      <Stack.Screen name="index" />
-      <Stack.Screen name="login" />
-      <Stack.Screen name="signup" />
-      <Stack.Screen name="faq" />
-      <Stack.Screen name="accountSetup" />
-      <Stack.Screen name="homeDashboard" />
-      <Stack.Screen name="recommendedFeed" />
-      <Stack.Screen name="accountSettings" />
-    </Stack>
+    <View style={{ flex: 1 }}>
+      <Stack screenOptions={{ headerShown: false }}>
+        {/* All screens are always available */}
+        <Stack.Screen name="index" />
+        <Stack.Screen name="login" />
+        <Stack.Screen name="signup" />
+        <Stack.Screen name="faq" />
+        <Stack.Screen name="accountSetup" />
+        <Stack.Screen name="homeDashboard" />
+        <Stack.Screen name="recommendedFeed" />
+        <Stack.Screen name="accountSettings" />
+      </Stack>
+      {showNavbar && <Navbar />}
+      </View>
+
   );
 }
 
