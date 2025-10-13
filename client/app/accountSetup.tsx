@@ -10,7 +10,7 @@ export default function AccountSetup() {
         alignItems: "center",
       }}
     >
-      <Text>Edit this to create account setup screen for users that login for the first time.</Text>
+      <Text>Hi Mussie</Text>
     </View>
   );
 }
