@@ -1,36 +1,56 @@
-import { Text, View, TouchableOpacity, StyleSheet } from "react-native";
-import { useRouter } from "expo-router";
+import { View, TouchableOpacity, StyleSheet } from "react-native";
+import { useRouter, usePathname } from "expo-router";
+import Ionicons from "@expo/vector-icons/Ionicons";
+
+type Route =  
+  | "/homeDashboard"
+  | "/recommendedFeed"
+  | "/trending"
+  | "/accountSettings";
+
 
 export default function Navbar() {
-  return (
+  const router = useRouter();
+  const pathname = usePathname();
 
+  const navItems: {route: Route; icon: string}[] = [
+    { route: "/homeDashboard", icon: "home" },
+    { route: "/recommendedFeed", icon: "search" },
+    { route: "/trending", icon: "flame" },
+    { route: "/accountSettings", icon: "person-circle" },
+  ];
+
+  return (
     <View style={styles.container}>
-      <TouchableOpacity>
-        <Text>Home</Text>
-      </TouchableOpacity>
-            <TouchableOpacity>
-        <Text>Feed</Text>
-      </TouchableOpacity>
-            <TouchableOpacity>
-        <Text>Search</Text>
-      </TouchableOpacity>
-            <TouchableOpacity>
-        <Text>profile</Text>
-      </TouchableOpacity>
+      {navItems.map(({ route, icon }) => {
+        const isActive = pathname === route;
+        const iconName = isActive ? icon : `${icon}-outline`;
+
+        return (
+          <TouchableOpacity key={route} onPress={() => router.push(route)}>
+            <Ionicons
+              name={iconName}
+              size={30}
+              color="black"
+            />
+          </TouchableOpacity>
+        );
+      })}
     </View>
   );
 }
 
-const styles = StyleSheet.create({ 
+const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
-    justifyContent: "space-around",
     alignItems: "center",
+    justifyContent: "center",
+    gap: 50,
     bottom: 0,
     width: "100%",
-    height: 60,
+    height: 80,
     backgroundColor: "#fff",
     borderTopWidth: 1,
     borderTopColor: "#ccc",
-  }
+  },
 });

@@ -4,6 +4,8 @@ import { useFonts } from "expo-font";
 import { Text, View } from "react-native";
 import { AuthProvider, useAuth } from "../hooks/AuthContext";
 import Navbar from "@/components/navbar";
+import Header from "@/components/header";
+import AccountSetup from "./accountSetup";
 
 function AppNavigator() {
   const { user, loading } = useAuth();
@@ -13,16 +15,21 @@ function AppNavigator() {
 
   // segment public (unauthenticated) routes
   const publicRoutes = ["index", "login", "signup"];
-  const protectedRoutes = ["homeDashboard", "recommendedFeed", "accountSettings"];
+  const protectedRoutes = ["homeDashboard", "recommendedFeed", "trending", "accountSettings"];
+  const setupRoute = "accountSetup";
 
   useEffect(() => {
     if (!navigationState?.key) return;
     if (loading) return;
+
     const currentRoute = segments[segments.length - 1] || "index";
     if (!user && !publicRoutes.includes(currentRoute)) {
       router.replace("/");
     }
-    if (user && publicRoutes.includes(currentRoute)) {
+    if (user && !user.setupComplete && currentRoute !== setupRoute) {
+      router.replace("/accountSetup");
+    }
+    if (user && user.setupComplete && publicRoutes.includes(currentRoute)) {
       router.replace("/homeDashboard");
     }
   }, [user, loading, navigationState?.key, segments]);
@@ -33,6 +40,7 @@ function AppNavigator() {
 
   return (
     <View style={{ flex: 1 }}>
+      {showNavbar && <Header />}
       <Stack screenOptions={{ headerShown: false }}>
         {/* All screens are always available */}
         <Stack.Screen name="index" />

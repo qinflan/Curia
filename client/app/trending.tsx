@@ -1,6 +1,6 @@
 import { Text, View } from "react-native";
 
-export default function RecommendedFeed() {
+export default function AccountSettings() {
   return (
 
     <View
@@ -10,7 +10,7 @@ export default function RecommendedFeed() {
         alignItems: "center",
       }}
     >
-      <Text>Edit this to create recommended feed screen.</Text>
+      <Text>Edit this to create trending bills screen.</Text>
     </View>
   );
 }
