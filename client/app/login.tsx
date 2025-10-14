@@ -69,7 +69,7 @@ export default function LoginLogin() {
 
 
       <TouchableOpacity onPress={handleLogin} style={{width: "100%"}}>
-        <BlurView intensity={20} tint="light" style={styles.button}>
+        <BlurView intensity={80} tint="light" style={styles.button}>
           <Text style={styles.buttonText}>Continue</Text>
         </BlurView>
       </TouchableOpacity>
@@ -147,6 +147,7 @@ const styles = StyleSheet.create({
   },
   input: {
     fontFamily: "InterRegular",
+    paddingVertical: 12,
     letterSpacing: -0.5,
     width: "100%",
     borderRadius: 25,

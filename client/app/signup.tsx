@@ -94,7 +94,7 @@ export default function Signup() {
         </BlurView>
 
         <TouchableOpacity onPress={handleSignup} style={{width: "100%"}}>
-          <BlurView intensity={20} tint="light" style={styles.button}>
+          <BlurView intensity={80} tint="light" style={styles.button}>
             <Text style={styles.buttonText}>Create Account</Text>
           </BlurView>
         </TouchableOpacity>
@@ -180,6 +180,7 @@ const styles = StyleSheet.create({
     borderColor: "rgba(255, 255, 255, 0.5)",
   },
   input: {
+    paddingVertical: 12,
     fontFamily: "InterRegular",
     letterSpacing: -0.5,
     width: "100%",
