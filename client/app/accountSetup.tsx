@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     textShadowColor: "rgba(0,0,0,0.3)",
     textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 15, // this is the blur radius
+    textShadowRadius: 15,
   },
   input: {
     borderWidth: 2,
