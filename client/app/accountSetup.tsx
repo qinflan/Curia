@@ -10,7 +10,7 @@ export default function AccountSetup() {
         alignItems: "center",
       }}
     >
-      <Text>Hi Mussie</Text>
+      <Text>Edit this file to create account setup screens</Text>
     </View>
   );
 }
