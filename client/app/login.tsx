@@ -19,7 +19,6 @@ export default function LoginScreen() {
     setIsLoading(true);
     
     try {
-      console.log("🔐 Login button pressed");
       await login(email, password);
       console.log("✅ Login completed successfully");
       // Navigation will happen automatically via ProtectedRoute

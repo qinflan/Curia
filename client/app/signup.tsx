@@ -8,7 +8,6 @@ export default function SignupScreen() {
   const { register } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [username, setUsername] = useState("");
   const [error, setError] = useState("");
 
   const handleSignup = async () => {
