@@ -95,6 +95,14 @@ class UserService {
                 updates.password = await bcrypt.hash(updates.password, 10);
             }
 
+            if (updates.preferences) {
+            const user = await User.findById(userId);
+            updates.preferences = {
+                ...user.preferences?.toObject(),
+                ...updates.preferences
+            };
+        }
+
             const updatedUser = await User.findByIdAndUpdate(
                 userId,
                 { $set: updates },

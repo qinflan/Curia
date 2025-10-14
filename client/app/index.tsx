@@ -28,7 +28,7 @@ export default function Landing() {
       <TouchableOpacity 
         onPress={() => {router.push("/signup")}}
       >
-        <BlurView intensity={60} tint="light" style={styles.button}>
+        <BlurView intensity={20} tint="dark" style={styles.button}>
           <Text style={styles.buttonText}>get started</Text>
           <Ionicons name="enter" size={20} color="white" style={styles.buttonIcon} />
         </BlurView>
