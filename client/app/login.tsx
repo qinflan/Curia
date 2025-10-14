@@ -53,6 +53,7 @@ export default function LoginLogin() {
         placeholderTextColor={"rgba(255, 255, 255, 0.6)"}
         value={email}
         onChangeText={setEmail}
+        autoCapitalize="none"
       />
     </BlurView>
 
@@ -64,6 +65,9 @@ export default function LoginLogin() {
         secureTextEntry
         value={password}
         onChangeText={setPassword}
+        textContentType="oneTimeCode"
+        autoComplete="off"
+        autoCapitalize="none"
       />
     </BlurView>
 

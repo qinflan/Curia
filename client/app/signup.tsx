@@ -70,6 +70,8 @@ export default function Signup() {
             keyboardType="email-address"
             value={email}
             onChangeText={setEmail}
+            autoComplete="off" 
+            autoCapitalize="none"
           />
         </BlurView>
         <BlurView intensity={20} tint="dark" style={styles.blurInput}>
@@ -80,6 +82,9 @@ export default function Signup() {
           secureTextEntry
           value={password}
           onChangeText={setPassword}
+          textContentType="oneTimeCode"
+          autoComplete="off"
+          autoCapitalize="none"
         />
         </BlurView>
         <BlurView intensity={20} tint="dark" style={styles.blurInput}>
@@ -90,6 +95,9 @@ export default function Signup() {
           secureTextEntry
           value={confirmPassword}
           onChangeText={setConfirmPassword}
+          textContentType="oneTimeCode" // disable password autofill for dev
+          autoComplete="off"
+          autoCapitalize="none"
         />
         </BlurView>
 
