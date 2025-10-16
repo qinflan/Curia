@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
-  city: { // add sanitization and do dropdown autocomplete on frontend (this can be used for fetching state legislation based on city)
+  city: {
     type: String,
     trim: true,
   },
@@ -48,6 +48,7 @@ const userSchema = new mongoose.Schema({
       default: 'light' 
     },
   },
+  savedBills: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Bill' }],
   createdAt: { 
     type: Date, 
     default: Date.now 
