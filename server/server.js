@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
+const { fetchRecentBills, enrichBills } = require('./services/bills')
 
 dotenv.config();
 const app = express();
@@ -17,9 +18,16 @@ app.use("/api/users", userRoutes);
 const mongoURI = process.env.MONGO_URI;
 
 mongoose.connect(mongoURI)
-    .then(() => console.log("Connected to MongoDB database!"))
-    .catch((err) => console.error("Error connecting to MongoDB:", err));
+  .then(async () => {
+    console.log("Connected to MongoDB database!")
 
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-}); 
+    await fetchRecentBills();
+    await enrichBills();
+
+    console.log("Bill fetch and enrichment complete");
+
+    app.listen(PORT, () => {
+      console.log(`Server is running on http://localhost:${PORT}`);
+    });
+  })
+  .catch((err) => console.error("Error connecting to MongoDB:", err));

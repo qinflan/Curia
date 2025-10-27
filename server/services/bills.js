@@ -1,15 +1,15 @@
-import Bill from "../models/bill";
-import axios from "axios";
-import dotenv from "dotenv";
+const Bill = require("../models/bill"); 
+const axios = require("axios");
+const dotenv = require("dotenv");
 
 dotenv.config();
 
 const API_KEY = process.env.CONGRESS_GOV_API_KEY;
-const BASE_URL = "https://api.congress.gov/v3";
+const CONGRESS_BASE_URL = "https://api.congress.gov/v3";
 
 const fetchRecentBills = async () => {
     try {
-        const response = await axios.get(`${BASE_URL}/bill`, {
+        const response = await axios.get(`${CONGRESS_BASE_URL}/bill`, {
             params: {
                 api_key: API_KEY,
                 sort: "updateDate desc",
@@ -45,20 +45,22 @@ const fetchRecentBills = async () => {
 
 const enrichBills = async () => {
     const billsToEnrich = await Bill.find({ enriched: { $ne: true } }).limit(50);
+    console.log(`Found ${billsToEnrich.length} bills to enrich.`);
         for (const b of billsToEnrich) {
             try {
-                const resBillDetails = await axios.get(`${BASE_URL}/bill/${b.congress}/${b.type}/${b.number}`, {
+
+                const enrichBillBaseUrl = `${CONGRESS_BASE_URL}/bill/${b.congress}/${b.type.toLowerCase()}/${b.number}`;
+
+                const resBillDetails = await axios.get(enrichBillBaseUrl, {
                     params: { api_key: API_KEY }
                 });
 
-                const resBillCosponsors = await axios.get(`${BASE_URL}/bill/${b.congress}/${b.type}/${b.number}/cosponsors`, {
-                    params: { api_key: API_KEY },
-                    limit: 250
+                const resBillCosponsors = await axios.get(`${enrichBillBaseUrl}/cosponsors`, {
+                    params: { api_key: API_KEY, limit: 250 }
                 });
 
-                const resBillSummaries = await axios.get(`${BASE_URL}/bill/${b.congress}/${b.type}/${b.number}/summaries`, {
-                    params: { api_key: API_KEY },
-                    limit: 250
+                const resBillSummaries = await axios.get(`${enrichBillBaseUrl}/summaries`, {
+                    params: { api_key: API_KEY, limit: 250 }
                 });
                 
                 const detailed = resBillDetails.data.bill;

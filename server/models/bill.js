@@ -1,8 +1,8 @@
-import mongoose from "mongoose";
+const mongoose = require ("mongoose");
 
 const billSchema = new mongoose.Schema({
   congress: Number,
-  number: String,
+  number: Number,
   type: String,
   title: String,
   originChamber: String,
@@ -42,4 +42,4 @@ const billSchema = new mongoose.Schema({
   dislikes: { type: Number, default: 0 },
 });
 
-export default mongoose.model("Bill", billSchema);
+module.exports = mongoose.model("Bill", billSchema);
