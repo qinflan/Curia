@@ -62,6 +62,10 @@ const enrichBills = async () => {
                 const resBillSummaries = await axios.get(`${enrichBillBaseUrl}/summaries`, {
                     params: { api_key: API_KEY, limit: 250 }
                 });
+
+                const resBillActions = await axios.get(`${enrichBillBaseUrl}/actions`, {
+                    params: { api_key: API_KEY, limit: 250 },
+                });
                 
                 const detailed = resBillDetails.data.bill;
                 const policyArea = detailed.policyArea?.name || null;
@@ -69,6 +73,7 @@ const enrichBills = async () => {
                 const cosponsors =  normalizeCosponsors(resBillCosponsors.data.cosponsors);
                 const summaries = resBillSummaries.data.summaries || [];
                 const latestSummary = summaries.sort((a, b) => new Date(b.updateDate) - new Date(a.updateDate))[0];
+                const actions = normalizeActions(resBillActions.data.actions);
                 
                 // TODO: add parser for html which will be cleaner
                 const summaryText = latestSummary ? latestSummary.text.replace(/<\/?[^>]+(>|$)/g, "") : null;
@@ -79,16 +84,17 @@ const enrichBills = async () => {
                         $set: {
                             policyArea,
                             summary: summaryText,
-                            sponsors: sponsors,
-                            cosponsors: cosponsors,
+                            sponsors,
+                            cosponsors,
                             enriched: true,
+                            actions,
                         }
                     }
                 );
 
                 console.log(`Enriched ${b.type.toUpperCase()} ${b.number}`);
             } catch (err) {
-                console.error(`Error enriching ${b.type}-${b.number}:`, err.message);
+                console.error(`Error enriching ${b.type}-${b.number}:`, err);
             }
         }
 };
@@ -114,9 +120,26 @@ const normalizeCosponsors = (cosponsors) => {
     }));
 };
 
+const normalizeActions = (actions) => {
+    if (typeof actions === "string") {
+        try {
+            actions = JSON.parse(actions);
+        } catch (e) {
+            console.error("Failed to parse actions string:", actions);
+            actions = [];
+        }
+    }
+
+    const normalizedActions = (actions || []).map(a => ({
+        actionDate: a.actionDate,
+        type: a.type,
+        text: a.text,
+    }));
+
+    return normalizedActions;
+};
+
 module.exports = {
     fetchRecentBills,
     enrichBills,
 };
-
-

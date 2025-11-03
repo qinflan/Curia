@@ -20,6 +20,12 @@ class UserController {
     async updateUser(req, res) {
         return UserService.updateUser(req, res);
     }
+    async saveBill(req, res) {
+        return UserService.saveBill(req, res);
+    }
+    async unsaveBill(req, res) {
+        return UserService.unsaveBill(req, res);
+    }
 }
 
 

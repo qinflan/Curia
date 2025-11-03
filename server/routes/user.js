@@ -13,5 +13,9 @@ router.get('/me', authenticateAccessToken, UserController.getUser);
 router.delete('/delete', authenticateAccessToken, UserController.deleteUser);
 router.put('/update', authenticateAccessToken, UserController.updateUser);
 
+// protected routes for bill interactions
+router.post('/bill/save/:billId', authenticateAccessToken, UserController.saveBill);
+router.delete('/bill/unsave/:billId', authenticateAccessToken, UserController.unsaveBill);
+
 
 module.exports = router;

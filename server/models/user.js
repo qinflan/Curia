@@ -49,6 +49,8 @@ const userSchema = new mongoose.Schema({
     },
   },
   savedBills: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Bill' }],
+  likedBills: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Bill' }],
+  dislikedBills: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Bill' }],
   createdAt: { 
     type: Date, 
     default: Date.now 

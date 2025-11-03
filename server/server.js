@@ -12,8 +12,10 @@ app.use(cors());
 app.use(express.json());
 
 const userRoutes = require("./routes/user");
+const billRoutes = require("./routes/bills");
 
 app.use("/api/users", userRoutes);
+app.use("/api/bills", billRoutes);
 
 const mongoURI = process.env.MONGO_URI;
 

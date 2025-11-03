@@ -1,4 +1,4 @@
-const mongoose = require ("mongoose");
+const mongoose = require("mongoose");
 
 const billSchema = new mongoose.Schema({
   congress: Number,
@@ -12,29 +12,28 @@ const billSchema = new mongoose.Schema({
     text: String
   },
   url: String,
-
-  //enrichable fields
   policyArea: String,
   summary: String,
-  sponsors: [
-    {
-        bioguideId: String,
-        firstName: String,
-        lastName: String,
-        state: String,
-        party: String,
-    }
-  ],
-  cosponsors: [
-    {
-        bioguideId: String,
-        firstName: String,
-        lastName: String,
-        state: String,
-        party: String,
-        sponsorshipDate: String,
-    }
-  ],
+  sponsors: [{
+    bioguideId: String,
+    firstName: String,
+    lastName: String,
+    state: String,
+    party: String,
+  }],
+  cosponsors: [{
+    bioguideId: String,
+    firstName: String,
+    lastName: String,
+    state: String,
+    party: String,
+    sponsorshipDate: String,
+  }],
+  actions: [{
+    actionDate: {type: String, default: null},
+    text: {type: String, default: null},
+    type: {type: String, default: null},
+  }],
   enriched: { type: Boolean, default: false }, // flag additional bill data pull from api for filtering
 
   // metrics
