@@ -7,5 +7,7 @@ router.get('/recommendations', authenticateAccessToken, BillController.getBillsB
 router.put('/:billId/like', authenticateAccessToken, BillController.likeBill);
 router.put('/:billId/dislike', authenticateAccessToken, BillController.dislikeBill);
 router.get('/saved', authenticateAccessToken, BillController.getSavedBills);
+router.get('/trending', authenticateAccessToken, BillController.getTrendingBills);
+router.get('/reps/:state', authenticateAccessToken, BillController.getBillByStateReps);
 
 module.exports = router;

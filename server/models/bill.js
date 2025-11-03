@@ -13,6 +13,7 @@ const billSchema = new mongoose.Schema({
   },
   url: String,
   policyArea: String,
+  shortSummary: {type: String, default: ""},
   summary: String,
   sponsors: [{
     bioguideId: String,
@@ -34,6 +35,17 @@ const billSchema = new mongoose.Schema({
     text: {type: String, default: null},
     type: {type: String, default: null},
   }],
+  status: {
+    currentChamber: String,
+    currentStatus: String,
+    timeline: [{
+      chamber: String,
+      status: String,
+      date: String,
+    }],
+    becameLaw: Boolean,
+    vetoed: Boolean,
+  },
   enriched: { type: Boolean, default: false }, // flag additional bill data pull from api for filtering
 
   // metrics
