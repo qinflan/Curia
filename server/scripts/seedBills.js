@@ -1,6 +1,8 @@
 const Bill = require("../models/bill"); 
 const axios = require("axios");
 const dotenv = require("dotenv");
+const normalizeBillStatus = require("../utils/normalizeBillStatus");
+const { convert } = require('html-to-text')
 
 dotenv.config();
 
@@ -43,6 +45,7 @@ const fetchRecentBills = async () => {
 
 const enrichBills = async () => {
     const billsToEnrich = await Bill.find({ enriched: { $ne: true } }).limit(50);
+    console.log(`Found ${billsToEnrich.length} bills to enrich.`);
         for (const b of billsToEnrich) {
             try {
 
@@ -71,23 +74,38 @@ const enrichBills = async () => {
                 const summaries = resBillSummaries.data.summaries || [];
                 const latestSummary = summaries.sort((a, b) => new Date(b.updateDate) - new Date(a.updateDate))[0];
                 const actions = normalizeActions(resBillActions.data.actions);
-                
-                // TODO: add parser for html which will be cleaner
-                const summaryText = latestSummary ? latestSummary.text.replace(/<\/?[^>]+(>|$)/g, "") : null;
+                const status = normalizeBillStatus(actions, b.type);
+
+                // console.log(`Normalized status for ${b.type.toUpperCase()} ${b.number}:`, status);
+
+                // use regex to get meaningful summaries (second html element)
+                const summaryText = normalizeSummaries(latestSummary);
+
+                const lines = summaryText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+                const summary = lines.slice(1).join(" ").replace(/\s+/g, ' ').trim();
+
+                const shortSummaryMatch = summary.match(/.*?[.!?](?:\s|$)/);
+                const shortSummary = shortSummaryMatch ? shortSummaryMatch[0].trim() : "";
+
+                console.log(summary);
+                console.log()
 
                 await Bill.updateOne(
                     { _id: b._id },
                     {
                         $set: {
                             policyArea,
-                            summary: summaryText,
+                            summary,
                             sponsors,
                             cosponsors,
                             enriched: true,
                             actions,
+                            status,
+                            shortSummary,
                         }
                     }
                 );
+            console.log(`Enriched ${b.type.toUpperCase()} ${b.number}`);
             } catch (err) {
                 console.error(`Error enriching ${b.type}-${b.number}:`, err);
             }
@@ -133,6 +151,22 @@ const normalizeActions = (actions) => {
 
     return normalizedActions;
 };
+
+const normalizeSummaries = (summaryObj) => {
+    if (!summaryObj) return "";
+
+    rawHtml = summaryObj.text || "";
+    if (Array.isArray(rawHtml)) rawHtml = rawHtml.join(" ");
+
+    const htmlConvertOptions = { 
+        wordwrap: false,
+        selectors: [
+            { selector: "a", options: { ignoreHref: true }},
+        ] 
+    }
+
+    return convert(rawHtml, htmlConvertOptions);
+}
 
 module.exports = {
     fetchRecentBills,
