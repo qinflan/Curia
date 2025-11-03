@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { Platform } from 'react-native';
-import { getToken } from './authHandler';
+import { getToken, getUser } from './authHandler';
 
 const API_BASE_URL =
   Platform.OS === "android"
@@ -9,7 +9,6 @@ const API_BASE_URL =
 
 
 export const fetchSavedBills = async () => {
-    // pull access token from storage
     const accessToken = await getToken("access_token");
     if (!accessToken) throw new Error("No access token stored.");
 
@@ -22,7 +21,7 @@ export const fetchSavedBills = async () => {
 export const saveBill = async (billId: string) => {
     const accessToken = await getToken("access_token");
     if (!accessToken) throw new Error("No access token stored.");   
-    const response = await axios.post(`${API_BASE_URL}/bills/save`, { billId }, {
+    const response = await axios.post(`${API_BASE_URL}/users/bill/save/${billId}`, {}, {
         headers: { Authorization: `Bearer ${accessToken}` }
     });
     return response.data;
@@ -31,7 +30,7 @@ export const saveBill = async (billId: string) => {
 export const unsaveBill = async (billId: string) => {
     const accessToken = await getToken("access_token");
     if (!accessToken) throw new Error("No access token stored.");
-    const response = await axios.post(`${API_BASE_URL}/bills/unsave`, { billId },
+    const response = await axios.delete(`${API_BASE_URL}/users/bill/unsave/${billId}`,
         {
         headers: { Authorization: `Bearer ${accessToken}` }
     });
@@ -59,7 +58,7 @@ export const fetchTrendingBills = async () => {
 export const likeBill = async (billId: string) => {
     const accessToken = await getToken("access_token");
     if (!accessToken) throw new Error("No access token stored.");
-    const response = await axios.post(`${API_BASE_URL}/bills/like`, { billId }, { 
+    const response = await axios.put(`${API_BASE_URL}/bills/${billId}/like`, {}, { 
         headers: { Authorization: `Bearer ${accessToken}` }
     });
     return response.data;
@@ -68,7 +67,7 @@ export const likeBill = async (billId: string) => {
 export const dislikeBill = async (billId: string) => {
     const accessToken = await getToken("access_token");
     if (!accessToken) throw new Error("No access token stored.");
-    const response = await axios.post(`${API_BASE_URL}/bills/dislike`, { billId }, {    
+    const response = await axios.put(`${API_BASE_URL}/bills/${billId}/dislike`, {}, {    
         headers: { Authorization: `Bearer ${accessToken}` }
     });
     return response.data;
@@ -77,7 +76,9 @@ export const dislikeBill = async (billId: string) => {
 export const fetchStateRepBills = async (stateCode: string) => {
     const accessToken = await getToken("access_token");
     if (!accessToken) throw new Error("No access token stored.");
-    const response = await axios.get(`${API_BASE_URL}/bills/state/${stateCode}`, {
+
+    const user = await getUser();
+    const response = await axios.get(`${API_BASE_URL}/bills/reps/${user.state}`, {
         headers: { Authorization: `Bearer ${accessToken}` }
     });
     return response.data;
