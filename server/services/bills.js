@@ -55,6 +55,8 @@ class BillService {
                     $project: {
                         title: 1,
                         summary: 1,
+                        shortSummary: 1,
+                        status: 1,
                         policyArea: 1,
                         number: 1,
                         type: 1,
@@ -131,6 +133,8 @@ class BillService {
                     $project: {
                         title: 1,
                         summary: 1,
+                        shortSummary: 1,
+                        status: 1,
                         policyArea: 1,
                         number: 1,
                         type: 1,
@@ -139,7 +143,6 @@ class BillService {
                         democratCount: 1,
                         likes: 1,
                         dislikes: 1,
-                        recentActions: 1,
                     }
                 }
             ]);
@@ -275,6 +278,8 @@ class BillService {
                     $project: {
                         title: 1,
                         summary: 1,
+                        shortSummary: 1,
+                        status: 1,
                         policyArea: 1,
                         number: 1,
                         type: 1,
@@ -283,7 +288,6 @@ class BillService {
                         democratCount: 1,
                         likes: 1,
                         dislikes: 1,
-                        recentActions: 1,
                     }
                 }
             ]);
@@ -339,7 +343,9 @@ class BillService {
                 {
                     $project: {
                         title: 1,
-                        summary: 1,
+                        summary: 1, 
+                        shortSummary: 1,
+                        status: 1,
                         policyArea: 1,
                         number: 1,
                         type: 1,
@@ -348,7 +354,6 @@ class BillService {
                         democratCount: 1,
                         likes: 1,
                         dislikes: 1,
-                        recentActions: 1,
                     }
                 }
             ]);

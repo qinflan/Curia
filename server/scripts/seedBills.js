@@ -87,8 +87,7 @@ const enrichBills = async () => {
                 const shortSummaryMatch = summary.match(/.*?[.!?](?:\s|$)/);
                 const shortSummary = shortSummaryMatch ? shortSummaryMatch[0].trim() : "";
 
-                console.log(summary);
-                console.log()
+                // console.log(summary);
 
                 await Bill.updateOne(
                     { _id: b._id },
