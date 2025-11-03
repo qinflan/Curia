@@ -22,13 +22,6 @@ function normalizeBillStatus(actions = [], billType = "") {
     (a, b) => new Date(a.actionDate) - new Date(b.actionDate)
   );
 
-  const deduped = sorted.filter(
-    (a, i) =>
-      i === 0 ||
-      a.text !== sorted[i - 1].text ||
-      a.actionDate !== sorted[i - 1].actionDate
-  );
-
   const timeline = [];
   let currentStatus = "Unknown";
   let currentChamber =
@@ -36,7 +29,7 @@ function normalizeBillStatus(actions = [], billType = "") {
       ? "Senate"
       : "House";
 
-  for (const { actionDate, text, type } of deduped) {
+  for (const { actionDate, text, type } of sorted) {
     const lower = text.toLowerCase();
     let chamber = currentChamber;
     if (lower.includes("senate")) chamber = "Senate";
@@ -70,14 +63,16 @@ function normalizeBillStatus(actions = [], billType = "") {
       else if (type === "BecameLaw") status = "Became Law";
     }
 
-    timeline.push({
-      date: actionDate,
-      chamber,
-      status
-    });
-
-    currentStatus = status;
-    currentChamber = chamber;
+    // prevent deuplicate timeline entries since actions can be repetitive
+    if (
+      !timeline.some(
+        (t) => t.chamber === chamber && t.status === status && t.date === actionDate
+      )
+    ) {
+      timeline.push({ date: actionDate, chamber, status });
+      currentStatus = status;
+      currentChamber = chamber;
+    }
   }
 
   // post-processing for inferred higher level statuses
