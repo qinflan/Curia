@@ -204,7 +204,7 @@ class BillService {
             if (!user) {
                 return res.status(404).json({ message: 'User not found' });
             }
-            
+
             const bill = await Bill.findById(billId);
             if (!bill) {
                 return res.status(404).json({ message: 'Bill not found' });
@@ -228,6 +228,132 @@ class BillService {
             await bill.save();
 
             return res.status(200).json({ message: 'Bill disliked successfully' });
+        } catch (error) {
+            return res.status(500).json({ message: 'Server error', error });
+        }
+    }
+
+    async getTrendingBills(req, res) {
+        try {
+            const bills = await Bill.aggregate([
+                { $sort: { likes: -1 } },
+                { $limit: 100 },
+
+                {
+                    $addFields: {
+                        allSponsors: { $concatArrays: ["$sponsors", "$cosponsors"] }
+                    }
+                },
+
+                {
+                    $addFields: {
+                        republicanCount: {
+                            $size: {
+                                $filter: { input: "$allSponsors", as: "s", cond: { $eq: ["$$s.party", "R"] } }
+                            }
+                        },
+                        democratCount: {
+                            $size: {
+                                $filter: { input: "$allSponsors", as: "s", cond: { $eq: ["$$s.party", "D"] } }
+                            }
+                        }
+                    }
+                },
+
+                {
+                    $addFields: {
+                        recentActions: {
+                            $slice: [
+                                { $reverseArray: { $sortArray: { input: "$actions", sortBy: { actionDate: 1 } } } },
+                                10
+                            ]
+                        }
+                    }
+                },
+
+                {
+                    $project: {
+                        title: 1,
+                        summary: 1,
+                        policyArea: 1,
+                        number: 1,
+                        type: 1,
+                        url: 1,
+                        republicanCount: 1,
+                        democratCount: 1,
+                        likes: 1,
+                        dislikes: 1,
+                        recentActions: 1,
+                    }
+                }
+            ]);
+
+            res.status(200).json(bills);
+        } catch (error) {
+            return res.status(500).json({ message: 'Server error', error });
+        }
+    }
+
+    async getBillByStateReps(req, res) {
+        try {
+            const { state } = req.params;
+            const bills = await Bill.aggregate([
+                {
+                    $match: {
+                        $or: [
+                            { "sponsors.state": state },
+                            { "cosponsors.state": state }
+                        ]
+                    }
+                },
+                {
+                    $addFields: {
+                        allSponsors: { $concatArrays: ["$sponsors", "$cosponsors"] }
+                    }
+                },
+                {
+                    $addFields: {
+                        republicanCount: {
+                            $size: {
+                                $filter: { input: "$allSponsors", as: "s", cond: { $eq: ["$$s.party", "R"] } }
+                            }
+                        },
+                        democratCount: {
+                            $size: {
+                                $filter: { input: "$allSponsors", as: "s", cond: { $eq: ["$$s.party", "D"] } }
+                            }
+                        }
+                    }
+                },
+                {
+                    $addFields: {
+                        recentActions: {
+                            $slice: [
+                                { $reverseArray: { $sortArray: { input: "$actions", sortBy: { actionDate: 1 } } } },
+                                10
+                            ]
+                        }
+                    }
+                },
+
+                {
+                    $project: {
+                        title: 1,
+                        summary: 1,
+                        policyArea: 1,
+                        number: 1,
+                        type: 1,
+                        url: 1,
+                        republicanCount: 1,
+                        democratCount: 1,
+                        likes: 1,
+                        dislikes: 1,
+                        recentActions: 1,
+                    }
+                }
+            ]);
+
+            res.status(200).json(bills);
         } catch (error) {
             return res.status(500).json({ message: 'Server error', error });
         }

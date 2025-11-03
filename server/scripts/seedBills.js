@@ -17,7 +17,6 @@ const fetchRecentBills = async () => {
             }
         });
         const bills = response.data.bills || [];
-        console.log(`Fetched ${bills.length} recent bills.`);
 
         for (const bill of bills) {
             await Bill.updateOne(
@@ -37,7 +36,6 @@ const fetchRecentBills = async () => {
             );
         }
 
-        console.log("Recent bills have been updated/inserted into the database.");
     } catch (error) {
         console.error("Error fetching recent bills:", error);
     }
@@ -45,7 +43,6 @@ const fetchRecentBills = async () => {
 
 const enrichBills = async () => {
     const billsToEnrich = await Bill.find({ enriched: { $ne: true } }).limit(50);
-    console.log(`Found ${billsToEnrich.length} bills to enrich.`);
         for (const b of billsToEnrich) {
             try {
 
@@ -91,8 +88,6 @@ const enrichBills = async () => {
                         }
                     }
                 );
-
-                console.log(`Enriched ${b.type.toUpperCase()} ${b.number}`);
             } catch (err) {
                 console.error(`Error enriching ${b.type}-${b.number}:`, err);
             }

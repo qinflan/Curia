@@ -18,6 +18,14 @@ class BillController {
         return BillService.dislikeBill(req, res);
     }
 
+    async getTrendingBills(req, res) {
+        return BillService.getTrendingBills(req, res);
+    }
+    
+    async getBillByStateReps(req, res) {
+        return BillService.getBillByStateReps(req, res);
+    }
+
 }
 
 module.exports = new BillController();
