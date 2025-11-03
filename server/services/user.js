@@ -133,6 +133,43 @@ class UserService {
         }
     };
 
+    // Bill interaction methods
+    async saveBill(req, res) {
+        const userId = req.user.userId;
+        const { billId } = req.params;
+        try {
+            const user = await User.findById(userId);
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+            if (user.savedBills.includes(billId)) {
+                return res.status(400).json({ message: 'Bill already saved' });
+            }
+            user.savedBills.push(billId);
+            await user.save();
+            return res.status(200).json({ message: 'Bill saved successfully' });
+        } catch (error) {
+            return res.status(500).json({ message: 'Server error', error });
+        }
+    }
+
+    async unsaveBill(req, res) {
+        const userId = req.user.userId;
+        const { billId } = req.params;
+        try {
+            const user = await User.findById(userId);
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+            user.savedBills = user.savedBills.filter(id => id.toString() !== billId);
+            await user.save();
+            return res.status(200).json({ message: 'Bill removed successfully' });
+        }
+        catch (error) {
+            return res.status(500).json({ message: 'Server error', error });
+        }  
+    }
+
 };
 
 
