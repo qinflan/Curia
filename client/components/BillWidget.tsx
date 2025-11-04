@@ -109,11 +109,11 @@ const BillWidget: React.FC<BillWidgetProps> = ({bill, user}) => {
               <View style={styles.partisanBar}>
                   <View style={[styles.partisanBarSegment, {
                       flex: repPercent,
-                      backgroundColor: '#ff4d4d',
+                      backgroundColor: '#f16363ff',
                   }]} />
                   <View style={[styles.partisanBarSegment, {
                       flex: demPercent,
-                      backgroundColor: '#4d79ff',
+                      backgroundColor: '#548cedff',
                   }]} />
               </View>
           </View>
@@ -186,14 +186,16 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 14,
         fontWeight: 'bold',
-        marginBottom: 8,
+        marginBottom: 6,
         fontFamily: "InterBold",
     },
 
     subheader: {
         fontSize: 12,
         fontFamily: 'InterSemiBold',
-
+        marginBottom: 12,
+        color: "#000000d4",
+        letterSpacing: -0.2
     },
 
     caption: {
@@ -267,7 +269,7 @@ const styles = StyleSheet.create({
     },
 
     partisanBar: {
-        height: 8,
+        height: 6,
         borderRadius: 50,
         width: '100%',
         flexDirection: 'row',

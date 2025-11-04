@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
     gap: 50,
     bottom: 0,
     width: "100%",
-    height: 80,
+    height: 65,
     backgroundColor: "#fff",
     borderTopWidth: 1,
     borderTopColor: "#ccc",

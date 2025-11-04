@@ -1,5 +1,5 @@
-import { Text, View, ScrollView, StyleSheet } from "react-native";
-import { useState, useEffect } from "react";
+import { Text, View, ScrollView, StyleSheet, ActivityIndicator, RefreshControl } from "react-native";
+import { useState, useEffect, useCallback } from "react";
 import { getUser } from "@/api/authHandler";
 import { fetchRecommendedBills } from "@/api/billsHandler";
 import BillWidget from "@/components/BillWidget";
@@ -8,6 +8,7 @@ import { Bill } from "@/components/types/BillWidgetTypes";
 export default function RecommendedFeed() {
   const [bills, setBills] = useState<Bill[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [user, setUser] = useState<{
   savedBills: string[];
   likedBills: string[];
@@ -27,22 +28,27 @@ useEffect(() => {
   loadUser();
 }, []);
 
-  useEffect(() => {
-    const loadRecommendedBills = async () => {
-      try {
-        const bills = await fetchRecommendedBills();
-        setBills(bills);
-      } catch (error) {
-        console.error("Error fetching recommended bills:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadRecommendedBills();
+  const loadRecommendedBills = useCallback(async () => {
+    try {
+      const bills = await fetchRecommendedBills();
+      setBills(bills);
+    } catch (error) {
+      console.error("Error fetching recommended bills:", error);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  // add animation later
+  useEffect(() => {
+    loadRecommendedBills();
+  }, [loadRecommendedBills]);
+
+    const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await loadRecommendedBills();
+    setRefreshing(false);
+  }, [loadRecommendedBills]);
+
   if (loading) {
     return (
       <View
@@ -52,16 +58,16 @@ useEffect(() => {
           alignItems: "center",
         }}
       >
-        <Text>Loading recommended bills...</Text>
+        <ActivityIndicator/>
       </View>
     );
   }
 
   return (
 
-    <ScrollView contentContainerStyle={styles.scrollViewContainer}>
+    <ScrollView contentContainerStyle={styles.scrollViewContainer} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>}>
       <View style={styles.headerContainer}>
-        <Text style={styles.headerText}>Recommended Bills</Text>
+        <Text style={styles.headerText}>Recommended</Text>
       </View>
       <View style={styles.billsContainer}>
       {user && bills.map((bill) => (

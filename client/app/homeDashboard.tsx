@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, ScrollView } from "react-native";
+import React, { useState, useEffect, useCallback } from "react";
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, TouchableOpacity } from "react-native";
+import { useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 import { 
   fetchSavedBills, 
   fetchStateRepBills, 
@@ -9,9 +11,11 @@ import BillWidget from "@/components/BillWidget";
 import { Bill } from "@/components/types/BillWidgetTypes";
 
 export default function HomeDashboard() {
+  const router = useRouter();
   const [savedBills, setSavedBills] = useState<Bill[]>([]);
   const [stateRepBills, setStateRepBills] = useState<Bill[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [user, setUser] = useState<{
   savedBills: string[];
   likedBills: string[];
@@ -32,20 +36,26 @@ useEffect(() => {
   loadUser();
 }, []);
 
-  useEffect(() => {
-    const loadSavedBills = async () => {
-      try {
-        const savedBills = await fetchSavedBills();
-        setSavedBills(savedBills);
-      } catch (error) {
-        console.error("Error fetching saved bills:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadSavedBills();
+  const loadSavedBills = useCallback(async () => {
+    try {
+      const bills = await fetchSavedBills();
+      setSavedBills(bills);
+    } catch (error) {
+      console.error("Error fetching saved bills:", error);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    loadSavedBills();
+  }, [loadSavedBills]);
+
+    const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await loadSavedBills();
+    setRefreshing(false);
+  }, [loadSavedBills]);
 
   useEffect(() => {
     if (!user?.state) return;
@@ -63,7 +73,6 @@ useEffect(() => {
     loadStateRepBills();
   }, [user]);
 
-  // add animation later
   if (loading) {
     return (
       <View
@@ -73,30 +82,42 @@ useEffect(() => {
           alignItems: "center",
         }}
       >
-        <Text>Loading recommended bills...</Text>
+        <ActivityIndicator/>
       </View>
     );
   }
 
   return (
 
-    <ScrollView contentContainerStyle={styles.scrollViewContainer}>
+    <ScrollView contentContainerStyle={styles.scrollViewContainer} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>}>
       <View style={styles.headerContainer}>
-        <Text style={styles.headerText}>Your Bills</Text>
+        <Text style={styles.headerText}>Saved</Text>
       </View>
       <View style={styles.billsContainer}>
-      {user && savedBills.map((bill) => (
-        <BillWidget key={bill._id} bill={bill} user={user} />
-      ))}
+      {user && savedBills.length > 0 ?
+      
+      (savedBills.map((bill) => (<BillWidget key={bill._id} bill={bill} user={user} />))) 
+        :
+      (
+      <View style={styles.emptyBillsContainer}>
+      <Text style={styles.caption}>No bills saved yet.</Text>
+      <TouchableOpacity style={styles.navigateButton} onPress={() => {router.push("/recommendedFeed")}}>
+        <Text style={styles.navigateButtonText}>Find legislation you care about</Text>
+        <Ionicons name="document-text-outline" size={16} color="white"/>
+      </TouchableOpacity>
+    </View>
+      )}
       </View>
 
-      <View style={styles.headerContainer}>
-        <Text style={styles.headerText}>Bills Your State Representatives Support</Text>
-      </View>
-      <View style={styles.billsContainer}>
-      {user && stateRepBills.map((bill) => (
-        <BillWidget key={bill._id} bill={bill} user={user} />
-      ))}
+      <View style={styles.stateRepContainer}>
+        <View style={styles.headerContainer}>
+          <Text style={styles.headerText}>Supported by Sen. Elizabeth Warren</Text>
+        </View>
+        <View style={styles.billsContainer}>
+        {user && stateRepBills.map((bill) => (
+          <BillWidget key={bill._id} bill={bill} user={user} />
+        ))}
+        </View>
       </View>
     </ScrollView>
   );  
@@ -126,5 +147,38 @@ useEffect(() => {
     headerContainer: {
       width: '90%',
       alignItems: 'center',
+    },
+
+    emptyBillsContainer: {
+      flexDirection: "column",
+      alignItems: "center"
+    },
+
+    stateRepContainer: {
+      marginTop: 50
+    },
+
+    caption: {
+      fontSize: 12,
+      marginBottom: 12,
+      fontFamily: "InterRegular",
+      letterSpacing: -0.4,
+    },
+
+    navigateButton: {
+      borderRadius: 14,
+      paddingHorizontal: 26,
+      paddingVertical: 12,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 6,
+      backgroundColor: "black"
+    },
+
+    navigateButtonText: {
+      fontFamily: "InterSemiBold",
+      letterSpacing: -0.5,
+      color: "white",
+      fontSize: 12
     }
   });

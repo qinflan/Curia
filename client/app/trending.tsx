@@ -1,13 +1,14 @@
-import { Text, View, ScrollView, StyleSheet } from "react-native";
-import React, { useState, useEffect } from 'react'
+import { Text, View, ScrollView, StyleSheet, ActivityIndicator, RefreshControl } from "react-native";
+import React, { useState, useEffect, useCallback } from 'react'
 import { fetchTrendingBills } from "@/api/billsHandler";
 import { getUser } from "@/api/authHandler";
 import BillWidget from "@/components/BillWidget";
 import type { Bill } from "@/components/types/BillWidgetTypes";
 
 export default function AccountSettings() {
-const [bills, setBills] = useState<Bill[]>([]);
+  const [bills, setBills] = useState<Bill[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [user, setUser] = useState<{
     savedBills: string[];
     likedBills: string[];
@@ -27,22 +28,27 @@ const [bills, setBills] = useState<Bill[]>([]);
     loadUser();
   }, []);
 
-  useEffect(() => {
-    const loadTrendingBills = async () => {
-      try {
-        const bills = await fetchTrendingBills();
-        setBills(bills);
-      } catch (error) {
-        console.error("Error fetching recommended bills:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadTrendingBills();
+  const loadTrendingBills = useCallback(async () => {
+    try {
+      const bills = await fetchTrendingBills();
+      setBills(bills);
+    } catch (error) {
+      console.error("Error fetching trending bills:", error);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  // add animation later
+  useEffect(() => {
+    loadTrendingBills();
+  }, [loadTrendingBills]);
+
+    const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await loadTrendingBills();
+    setRefreshing(false);
+  }, [loadTrendingBills]);
+
   if (loading) {
     return (
       <View
@@ -52,16 +58,16 @@ const [bills, setBills] = useState<Bill[]>([]);
           alignItems: "center",
         }}
       >
-        <Text>Loading recommended bills...</Text>
+        <ActivityIndicator/>
       </View>
     );
   }
 
   return (
 
-    <ScrollView contentContainerStyle={styles.scrollViewContainer}>
+    <ScrollView contentContainerStyle={styles.scrollViewContainer} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>}>
       <View style={styles.headerContainer}>
-        <Text style={styles.headerText}>Trending Bills</Text>
+        <Text style={styles.headerText}>Trending</Text>
       </View>
       <View style={styles.billsContainer}>
       {user && bills.map((bill) => (
