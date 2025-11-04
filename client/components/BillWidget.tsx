@@ -14,15 +14,21 @@ import type { Bill } from './types/BillWidgetTypes';
 
 type BillWidgetProps = {
     bill: Bill;
+    user: {
+        savedBills: string[],
+        likedBills: string[],
+        dislikedBills: string[]
+    }
 };
 
-const BillWidget: React.FC<BillWidgetProps> = ({bill}) => {
+const BillWidget: React.FC<BillWidgetProps> = ({bill, user}) => {
     const [expanded, setExpanded] = useState(false);
-    const [liked, setLiked] = useState(false);
-    const [disliked, setDisliked] = useState(false);
-    const [likes, setLikes] = useState(bill.likes);
-    const [dislikes, setDislikes] = useState(bill.dislikes);
-    const [saved, setSaved] = useState<boolean>(false);
+    const [liked, setLiked] = useState(user.likedBills.includes(bill._id));
+    const [disliked, setDisliked] = useState(user.dislikedBills.includes(bill._id));
+    const [saved, setSaved] = useState(user.savedBills.includes(bill._id));
+
+    const [likes, setLikes] = useState(bill.likes + (liked ? 1 : 0));
+    const [dislikes, setDislikes] = useState(bill.dislikes + (disliked ? 1 : 0));
 
     const timelineData = useMemo(() => {
     return bill.status.timeline

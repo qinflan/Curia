@@ -1,5 +1,6 @@
 import { Text, View, ScrollView, StyleSheet } from "react-native";
 import { useState, useEffect } from "react";
+import { getUser } from "@/api/authHandler";
 import { fetchRecommendedBills } from "@/api/billsHandler";
 import BillWidget from "@/components/BillWidget";
 import { Bill } from "@/components/types/BillWidgetTypes";
@@ -7,6 +8,24 @@ import { Bill } from "@/components/types/BillWidgetTypes";
 export default function RecommendedFeed() {
   const [bills, setBills] = useState<Bill[]>([]);
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<{
+  savedBills: string[];
+  likedBills: string[];
+  dislikedBills: string[];
+  } | null>(null);
+
+useEffect(() => {
+  const loadUser = async () => {
+    try {
+      const fetchedUser = await getUser();
+      setUser(fetchedUser);
+    } catch (err) {
+      console.error("Error loading user:", err);
+    }
+  };
+
+  loadUser();
+}, []);
 
   useEffect(() => {
     const loadRecommendedBills = async () => {
@@ -45,8 +64,8 @@ export default function RecommendedFeed() {
         <Text style={styles.headerText}>Recommended Bills</Text>
       </View>
       <View style={styles.billsContainer}>
-      {bills.map((bill) => (
-        <BillWidget key={bill._id} bill={bill} />
+      {user && bills.map((bill) => (
+        <BillWidget key={bill._id} bill={bill} user={user} />
       ))}
       </View>
     </ScrollView>

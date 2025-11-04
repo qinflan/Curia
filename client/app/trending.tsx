@@ -1,12 +1,31 @@
 import { Text, View, ScrollView, StyleSheet } from "react-native";
 import React, { useState, useEffect } from 'react'
 import { fetchTrendingBills } from "@/api/billsHandler";
+import { getUser } from "@/api/authHandler";
 import BillWidget from "@/components/BillWidget";
 import type { Bill } from "@/components/types/BillWidgetTypes";
 
 export default function AccountSettings() {
 const [bills, setBills] = useState<Bill[]>([]);
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<{
+    savedBills: string[];
+    likedBills: string[];
+    dislikedBills: string[];
+    } | null>(null);
+  
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const fetchedUser = await getUser();
+        setUser(fetchedUser);
+      } catch (err) {
+        console.error("Error loading user:", err);
+      }
+    };
+  
+    loadUser();
+  }, []);
 
   useEffect(() => {
     const loadTrendingBills = async () => {
@@ -45,8 +64,8 @@ const [bills, setBills] = useState<Bill[]>([]);
         <Text style={styles.headerText}>Trending Bills</Text>
       </View>
       <View style={styles.billsContainer}>
-      {bills.map((bill) => (
-        <BillWidget key={bill._id} bill={bill} />
+      {user && bills.map((bill) => (
+        <BillWidget key={bill._id} bill={bill} user={user}/>
       ))}
       </View>
     </ScrollView>

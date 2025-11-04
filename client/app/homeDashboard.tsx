@@ -9,10 +9,27 @@ import BillWidget from "@/components/BillWidget";
 import { Bill } from "@/components/types/BillWidgetTypes";
 
 export default function HomeDashboard() {
-  // const user = getUser();
   const [savedBills, setSavedBills] = useState<Bill[]>([]);
   // const [stateRepBills, setStateRepBills] = useState<Bill[]>([]);
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<{
+  savedBills: string[];
+  likedBills: string[];
+  dislikedBills: string[];
+  } | null>(null);
+
+useEffect(() => {
+  const loadUser = async () => {
+    try {
+      const fetchedUser = await getUser();
+      setUser(fetchedUser);
+    } catch (err) {
+      console.error("Error loading user:", err);
+    }
+  };
+
+  loadUser();
+}, []);
 
   useEffect(() => {
     const loadSavedBills = async () => {
@@ -66,8 +83,8 @@ export default function HomeDashboard() {
         <Text style={styles.headerText}>Your Bills</Text>
       </View>
       <View style={styles.billsContainer}>
-      {savedBills.map((bill) => (
-        <BillWidget key={bill._id} bill={bill} />
+      {user && savedBills.map((bill) => (
+        <BillWidget key={bill._id} bill={bill} user={user} />
       ))}
       </View>
 

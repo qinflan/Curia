@@ -2,6 +2,8 @@ const Bill = require("../models/bill");
 const User = require("../models/user");
 const mongoose = require("mongoose");
 
+
+// TODO: return data aggregation is super repetitive so refactor it to make this more clean 
 class BillService {
     async getBillsByPolicyAreas(req, res) {
         try {
@@ -50,6 +52,8 @@ class BillService {
                         }
                     }
                 },
+
+                { $match: { shortSummary: { $exists: true, $ne: "" } } },
 
                 {
                     $project: {
@@ -129,6 +133,8 @@ class BillService {
                         }
                     }
                 },
+
+                { $match: { shortSummary: { $exists: true, $ne: "" } } },
 
                 {
                     $project: {
@@ -344,6 +350,8 @@ class BillService {
                     }
                 },
 
+                { $match: { shortSummary: { $exists: true, $ne: "" } } },
+
                 {
                     $project: {
                         title: 1,
@@ -410,6 +418,8 @@ class BillService {
                         }
                     }
                 },
+
+                { $match: { shortSummary: { $exists: true, $ne: "" } } },
 
                 {
                     $project: {
