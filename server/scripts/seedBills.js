@@ -44,7 +44,7 @@ const fetchRecentBills = async () => {
 };
 
 const enrichBills = async () => {
-    const billsToEnrich = await Bill.find({ enriched: { $ne: true } }).limit(50);
+    const billsToEnrich = await Bill.find({ enriched: { $ne: true } }).limit(250);
     console.log(`Found ${billsToEnrich.length} bills to enrich.`);
         for (const b of billsToEnrich) {
             try {

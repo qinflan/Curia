@@ -18,6 +18,14 @@ class BillController {
         return BillService.dislikeBill(req, res);
     }
 
+    async unlikeBill(req, res) {
+        return BillService.unlikeBill(req, res);
+    }
+
+    async undislikeBill(req, res) {
+        return BillService.undislikeBill(req, res);
+    }
+
     async getTrendingBills(req, res) {
         return BillService.getTrendingBills(req, res);
     }
