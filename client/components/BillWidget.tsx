@@ -11,7 +11,6 @@ import {
     undislikeBill
 } from "@/api/billsHandler";
 import type { Bill } from './types/BillWidgetTypes';
-import { timeLog } from 'console';
 
 type BillWidgetProps = {
     bill: Bill;
