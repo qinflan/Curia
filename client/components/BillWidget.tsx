@@ -27,8 +27,8 @@ const BillWidget: React.FC<BillWidgetProps> = ({bill, user}) => {
     const [disliked, setDisliked] = useState(user.dislikedBills.includes(bill._id));
     const [saved, setSaved] = useState(user.savedBills.includes(bill._id));
 
-    const [likes, setLikes] = useState(bill.likes + (liked ? 1 : 0));
-    const [dislikes, setDislikes] = useState(bill.dislikes + (disliked ? 1 : 0));
+    const [likes, setLikes] = useState(bill.likes);
+    const [dislikes, setDislikes] = useState(bill.dislikes);
 
     const timelineData = useMemo(() => {
     return bill.status.timeline

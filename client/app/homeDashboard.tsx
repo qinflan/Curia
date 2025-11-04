@@ -10,12 +10,13 @@ import { Bill } from "@/components/types/BillWidgetTypes";
 
 export default function HomeDashboard() {
   const [savedBills, setSavedBills] = useState<Bill[]>([]);
-  // const [stateRepBills, setStateRepBills] = useState<Bill[]>([]);
+  const [stateRepBills, setStateRepBills] = useState<Bill[]>([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<{
   savedBills: string[];
   likedBills: string[];
   dislikedBills: string[];
+  state: string;
   } | null>(null);
 
 useEffect(() => {
@@ -46,20 +47,21 @@ useEffect(() => {
     loadSavedBills();
   }, []);
 
-  // useEffect(() => {
-  //   const loadStateRepBills = async () => {
-  //     try {
-  //       const stateRepBills = await fetchStateRepBills(user.state);
-  //       setStateRepBills(stateRepBills);
-  //     } catch (error) {
-  //       console.error("Error fetching state rep bills:", error);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
+  useEffect(() => {
+    if (!user?.state) return;
+    const loadStateRepBills = async () => {
+      try {
+        const stateRepBills = await fetchStateRepBills(user.state);
+        setStateRepBills(stateRepBills);
+      } catch (error) {
+        console.error("Error fetching state rep bills:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  //   loadStateRepBills();
-  // }, []);
+    loadStateRepBills();
+  }, [user]);
 
   // add animation later
   if (loading) {
@@ -88,14 +90,14 @@ useEffect(() => {
       ))}
       </View>
 
-      {/* <View style={styles.headerContainer}>
+      <View style={styles.headerContainer}>
         <Text style={styles.headerText}>Bills Your State Representatives Support</Text>
       </View>
       <View style={styles.billsContainer}>
-      {stateRepBills.map((bill) => (
-        <BillWidget key={bill._id} bill={bill} />
+      {user && stateRepBills.map((bill) => (
+        <BillWidget key={bill._id} bill={bill} user={user} />
       ))}
-      </View> */}
+      </View>
     </ScrollView>
   );  
 }
