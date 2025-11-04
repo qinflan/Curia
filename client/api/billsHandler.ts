@@ -40,7 +40,7 @@ export const unsaveBill = async (billId: string) => {
 export const fetchRecommendedBills = async () => {
     const accessToken = await getToken("access_token");
     if (!accessToken) throw new Error("No access token stored."); 
-    const response = await axios.get(`${API_BASE_URL}/bills/recommended`, {
+    const response = await axios.get(`${API_BASE_URL}/bills/recommendations`, {
         headers: { Authorization: `Bearer ${accessToken}` }
     });
     return response.data;
@@ -68,6 +68,24 @@ export const dislikeBill = async (billId: string) => {
     const accessToken = await getToken("access_token");
     if (!accessToken) throw new Error("No access token stored.");
     const response = await axios.put(`${API_BASE_URL}/bills/${billId}/dislike`, {}, {    
+        headers: { Authorization: `Bearer ${accessToken}` }
+    });
+    return response.data;
+}
+
+export const unlikeBill = async (billId: string) => {
+    const accessToken = await getToken("access_token");
+    if (!accessToken) throw new Error("No access token stored.");
+    const response = await axios.put(`${API_BASE_URL}/bills/${billId}/unlike`, {}, { 
+        headers: { Authorization: `Bearer ${accessToken}` }
+    });
+    return response.data;
+}
+
+export const undislikeBill = async (billId: string) => {
+    const accessToken = await getToken("access_token");
+    if (!accessToken) throw new Error("No access token stored.");
+    const response = await axios.put(`${API_BASE_URL}/bills/${billId}/undislike`, {}, {    
         headers: { Authorization: `Bearer ${accessToken}` }
     });
     return response.data;

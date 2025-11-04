@@ -2,6 +2,8 @@ const Bill = require("../models/bill");
 const User = require("../models/user");
 const mongoose = require("mongoose");
 
+
+// TODO: return data aggregation is super repetitive so refactor it to make this more clean 
 class BillService {
     async getBillsByPolicyAreas(req, res) {
         try {
@@ -51,12 +53,15 @@ class BillService {
                     }
                 },
 
+                { $match: { shortSummary: { $exists: true, $ne: "" } } },
+
                 {
                     $project: {
                         title: 1,
                         summary: 1,
                         shortSummary: 1,
                         status: 1,
+                        originChamber: 1,
                         policyArea: 1,
                         number: 1,
                         type: 1,
@@ -129,12 +134,15 @@ class BillService {
                     }
                 },
 
+                { $match: { shortSummary: { $exists: true, $ne: "" } } },
+
                 {
                     $project: {
                         title: 1,
                         summary: 1,
                         shortSummary: 1,
                         status: 1,
+                        originChamber: 1,
                         policyArea: 1,
                         number: 1,
                         type: 1,
@@ -195,6 +203,40 @@ class BillService {
         }
     }
 
+    async unlikeBill(req, res) {
+        const userId = req.user.userId;
+        const { billId } = req.params;
+
+        console.log("billId from params:", billId);
+        console.log("type:", typeof billId);
+
+        try {
+            const user = await User.findById(userId);
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+
+            const bill = await Bill.findById(billId);
+            if (!bill) {
+                return res.status(404).json({ message: 'Bill not found' });
+            }
+
+            const likedIndex = user.likedBills.findIndex(id => id.equals(bill._id));
+            if (likedIndex === -1) {
+                return res.status(400).json({ message: 'Bill not liked yet' });
+            }
+            user.likedBills.splice(likedIndex, 1);
+            await user.save();
+
+            if (bill.likes > 0) bill.likes -= 1;
+            await bill.save();
+
+            return res.status(200).json({ message: 'Bill unliked successfully' });
+        } catch (error) {
+            return res.status(500).json({ message: 'Server error', error });
+        }
+    }
+
     async dislikeBill(req, res) {
         const userId = req.user.userId;
         const { billId } = req.params;
@@ -231,6 +273,40 @@ class BillService {
             await bill.save();
 
             return res.status(200).json({ message: 'Bill disliked successfully' });
+        } catch (error) {
+            return res.status(500).json({ message: 'Server error', error });
+        }
+    }
+
+    async undislikeBill(req, res) {
+        const userId = req.user.userId;
+        const { billId } = req.params;
+
+        console.log("billId from params:", billId);
+        console.log("type:", typeof billId);
+
+        try {
+            const user = await User.findById(userId);
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+
+            const bill = await Bill.findById(billId);
+            if (!bill) {
+                return res.status(404).json({ message: 'Bill not found' });
+            }
+
+            const dislikedIndex = user.dislikedBills.findIndex(id => id.equals(bill._id));
+            if (dislikedIndex === -1) {
+                return res.status(400).json({ message: 'Bill not liked yet' });
+            }
+            user.dislikedBills.splice(dislikedIndex, 1);
+            await user.save();
+
+            if (bill.dislikes > 0) bill.dislikes -= 1;
+            await bill.save();
+
+            return res.status(200).json({ message: 'Bill unliked successfully' });
         } catch (error) {
             return res.status(500).json({ message: 'Server error', error });
         }
@@ -274,12 +350,15 @@ class BillService {
                     }
                 },
 
+                { $match: { shortSummary: { $exists: true, $ne: "" } } },
+
                 {
                     $project: {
                         title: 1,
                         summary: 1,
                         shortSummary: 1,
                         status: 1,
+                        originChamber: 1,
                         policyArea: 1,
                         number: 1,
                         type: 1,
@@ -339,6 +418,8 @@ class BillService {
                         }
                     }
                 },
+
+                { $match: { shortSummary: { $exists: true, $ne: "" } } },
 
                 {
                     $project: {
