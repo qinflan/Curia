@@ -4,6 +4,8 @@ import { getUser } from "@/api/authHandler";
 import { fetchRecommendedBills } from "@/api/billsHandler";
 import BillWidget from "@/components/BillWidget";
 import { Bill } from "@/components/types/BillWidgetTypes";
+import SearchBar from "@/components/SearchBar";
+import SpinnerFallback from "@/components/SpinnerFallback";
 
 export default function RecommendedFeed() {
   const [bills, setBills] = useState<Bill[]>([]);
@@ -51,21 +53,14 @@ useEffect(() => {
 
   if (loading) {
     return (
-      <View
-        style={{
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <ActivityIndicator/>
-      </View>
+      <SpinnerFallback/>
     );
   }
 
   return (
 
     <ScrollView contentContainerStyle={styles.scrollViewContainer} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>}>
+      <SearchBar onSearch={setBills} />
       <View style={styles.headerContainer}>
         <Text style={styles.headerText}>Recommended</Text>
       </View>

@@ -1,9 +1,17 @@
-import React from 'react'
+import { ActivityIndicator, View } from 'react-native';
 
 const SpinnerFallback = () => {
   return (
-    <div>SpinnerFallback</div>
-  )
+    <View
+      style={{
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <ActivityIndicator />
+    </View>
+  );
 }
 
 export default SpinnerFallback
