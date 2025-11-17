@@ -4,7 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 
-export default function faq() {
+export default function Faq() {
   const router = useRouter();
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
 

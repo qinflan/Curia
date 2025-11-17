@@ -34,6 +34,10 @@ class BillController {
         return BillService.getBillByStateReps(req, res);
     }
 
+    async searchBills(req, res) {
+        return BillService.getBillsByKeywords(req, res);
+    }
+
 }
 
 module.exports = new BillController();

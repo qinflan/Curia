@@ -101,3 +101,18 @@ export const fetchStateRepBills = async (stateCode: string) => {
     });
     return response.data;
 }
+
+export const searchBillsByKeywords = async (keyword: string) => {
+    if (!keyword.trim()) {
+        return []
+    }
+
+    const accessToken = await getToken("access_token");
+    if (!accessToken) throw new Error("No access token stored.");
+
+    const response = await axios.get(`${API_BASE_URL}/bills/search`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+        params: { keyword: keyword}
+    })
+    return response.data;
+}

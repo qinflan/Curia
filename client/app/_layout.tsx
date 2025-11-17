@@ -5,7 +5,6 @@ import { Text, View } from "react-native";
 import { AuthProvider, useAuth } from "../hooks/AuthContext";
 import Navbar from "@/components/navbar";
 import Header from "@/components/header";
-import AccountSetup from "./accountSetup";
 
 function AppNavigator() {
   const { user, loading } = useAuth();

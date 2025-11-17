@@ -83,9 +83,7 @@ const enrichBills = async () => {
 
                 const lines = summaryText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
                 const summary = lines.slice(1).join(" ").replace(/\s+/g, ' ').trim();
-
-                const shortSummaryMatch = summary.match(/.*?[.!?](?:\s|$)/);
-                const shortSummary = shortSummaryMatch ? shortSummaryMatch[0].trim() : "";
+                const shortSummary = extractShortSummary(summary);
 
                 // console.log(summary);
 
@@ -166,6 +164,24 @@ const normalizeSummaries = (summaryObj) => {
 
     return convert(rawHtml, htmlConvertOptions);
 }
+
+// gross regex that just works
+const extractShortSummary = (text, maxLength = 300) => {
+    if (!text) return "";
+
+    let cleanText = text.replace(/\s+/g, " ").trim();
+
+    cleanText = cleanText.replace(/^\(?(sec(tion)?\.?\s*\d+[a-zA-Z]?\)?)/i, "").trim();
+
+    const sentenceMatch = cleanText.match(/.*?[.!?](?:\s|$)/);
+    let shortSummary = sentenceMatch ? sentenceMatch[0].trim() : cleanText;
+
+    if (shortSummary.length > maxLength) {
+        shortSummary = shortSummary.slice(0, maxLength).trim() + "...";
+    }
+
+    return shortSummary;
+};
 
 module.exports = {
     fetchRecentBills,

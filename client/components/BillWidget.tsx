@@ -31,19 +31,35 @@ const BillWidget: React.FC<BillWidgetProps> = ({bill, user}) => {
     const [dislikes, setDislikes] = useState(bill.dislikes);
 
     const timelineData = useMemo(() => {
-    return bill.status.timeline
-        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-        .map((t) => ({
-        title: t.status,      
-        subtitle: `${t.chamber} • ${new Date(t.date).toLocaleDateString()}`,
-        status: "completed",                        
-        renderContent: (
-            <Text style={{ fontSize: 11, color: "#555", fontFamily: "InterRegular" }}>
-            {`Action taken in the ${t.chamber} on ${new Date(t.date).toLocaleDateString()}`}
-            </Text>
-        ),
-        }));
-      }, [bill.status.timeline]);
+    if (!bill.status.timeline?.length) return [];
+
+    const sorted = [...bill.status.timeline].sort(
+        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
+
+    // Track how many actions we've seen per date to add counter for duplicates
+    const dateCountMap: Record<string, number> = {};
+
+    return sorted.map((t, index) => {
+        const dateStr = new Date(t.date).toLocaleDateString();
+        dateCountMap[dateStr] = (dateCountMap[dateStr] || 0) + 1;
+        const countForDate = dateCountMap[dateStr];
+        
+        const uniqueStatus = `${bill._id}-${t.date}-${index}`;
+        const titleWithCounter = countForDate > 1 ? `${dateStr} (${countForDate})` : dateStr;
+
+            return {
+                title: titleWithCounter,
+                subtitle: `${t.status} - ${t.chamber}`,
+                status: uniqueStatus,
+                renderContent: (
+                    <Text style={{ fontSize: 11, color: "#555", fontFamily: "InterRegular" }}>
+                        {`Action taken in the ${t.chamber}`}
+                    </Text>
+                ),
+            };
+        });
+      }, [bill]);
 
     //   calculate partisan percentages
     const total = bill.republicanCount + bill.democratCount;
@@ -122,7 +138,25 @@ const BillWidget: React.FC<BillWidgetProps> = ({bill, user}) => {
             <>
                 <Text style={styles.sectionHeader}>Bill Progression</Text>
                 <ScrollView style={styles.timelineContainer} nestedScrollEnabled={true}>
-                    <VerticalStatusProgress showOrder={false} statuses={timelineData} currentStatus={bill.status.currentStatus}/>
+                    <VerticalStatusProgress 
+                        showOrder={false} 
+                        statuses={timelineData} 
+                        currentStatus={timelineData.length > 0 ? timelineData[0].status : `${bill._id}-unknown`}
+                        statusColors={{
+                            prevBallColor: '#000000ff', 
+                            currentBallColor: '#000000ff',   
+                            futureBallColor: '#c4c4c4ff',
+                            prevStickColor: '#000000ff',
+                            currentStickColor: '#000000ff',
+                            futureStickColor: '#c4c4c4ff',
+                            prevTitleColor: '#000000ff',
+                            currentTitleColor: '#000000ff',
+                            futureTitleColor: '#000000a6',
+                            prevSubtitleColor: '#000000ff',
+                            currentSubtitleColor: '#000000ff',
+                            futureSubtitleColor: '#000000a6',
+                        }}
+                        />
                 </ScrollView>
             </>
         )}
@@ -180,7 +214,9 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 0 },
         shadowOpacity: 0.01,
         shadowRadius: 12,
-        elevation: 5,
+        elevation: 1,
+        borderWidth: 1,
+        borderColor: "#c4c4c4ff"
     },
 
     title: {

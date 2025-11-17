@@ -53,4 +53,7 @@ const billSchema = new mongoose.Schema({
   dislikes: { type: Number, default: 0 },
 });
 
+// text indexes for quick searches based on keywords
+billSchema.index({ title: "text", summary: "text", policyArea: "text" });
+
 module.exports = mongoose.model("Bill", billSchema);

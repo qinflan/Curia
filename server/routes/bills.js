@@ -11,5 +11,6 @@ router.put('/:billId/dislike', authenticateAccessToken, BillController.dislikeBi
 router.get('/saved', authenticateAccessToken, BillController.getSavedBills);
 router.get('/trending', authenticateAccessToken, BillController.getTrendingBills);
 router.get('/reps/:state', authenticateAccessToken, BillController.getBillByStateReps);
+router.get('/search', authenticateAccessToken, BillController.searchBills);
 
 module.exports = router;
