@@ -444,6 +444,28 @@ class BillService {
             return res.status(500).json({ message: 'Server error', error });
         }
     }
+
+    async getBillsByKeywords(req, res) {
+       try {
+        const { keyword } = req.query;
+        if (!keyword || keyword.trim() === "") {
+            return res.status(400).json({ message: "Keyword is required" });
+        }
+
+        const bills = await Bill.find(
+            { $text: { $search: keyword } },
+            { score: { $meta: "textScore" } } // relevance score
+        )
+        .sort({ score: { $meta: "textScore" } })
+        .limit(100); // optional limit
+
+        res.status(200).json(bills);
+
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ message: "Server error", error });
+        }
+    }
 }
 
 module.exports = new BillService();
