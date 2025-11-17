@@ -26,7 +26,7 @@ const SearchBar: React.FC<SearchBarProps> = ( { onSearch }) => {
                 style={styles.textInput}
                 onChangeText={setKeywords}
                 value={keywords}
-                placeholder="search bills by keywords"
+                placeholder="search bills"
             />
             <TouchableOpacity style={styles.searchBtn} onPress={handleSearchBills}>
                 <Ionicons 
@@ -53,9 +53,9 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 0 },
         shadowOpacity: 0.01,
         shadowRadius: 12,
-        elevation: 2,
+        elevation: 1,
         borderWidth: 1,
-        borderColor: "#c4c4c4ff"
+        borderColor: "#ccc"
     },
     textInput: {
         backgroundColor: "white",

@@ -1,6 +1,7 @@
 const Bill = require("../models/bill");
 const User = require("../models/user");
 const mongoose = require("mongoose");
+const { buildBillAggregation } = require("../utils/billAggregation")
 
 
 // TODO: return data aggregation is super repetitive so refactor it to make this more clean 
@@ -14,67 +15,11 @@ class BillService {
             }
             const interests = user.preferences?.interests || [];
 
-            const bills = await Bill.aggregate([
-                { $match: { policyArea: { $in: interests } } },
-
-                {
-                    $addFields: {
-                        allSponsors: { $concatArrays: ["$sponsors", "$cosponsors"] }
-                    }
-                },
-
-                {
-                    $addFields: {
-                        republicanCount: {
-                            $size: {
-                                $filter: {
-                                    input: "$allSponsors", as: "s", cond: { $eq: ["$$s.party", "R"] }
-                                }
-                            }
-                        },
-                        democratCount: {
-                            $size: {
-                                $filter: {
-                                    input: "$allSponsors", as: "s", cond: { $eq: ["$$s.party", "D"] }
-                                }
-                            }
-                        }
-                    },
-                },
-
-                {
-                    $addFields: {
-                        recentActions: {
-                            $slice: [
-                                { $reverseArray: { $sortArray: { input: "$actions", sortBy: { actionDate: 1 } } } },
-                                10
-                            ]
-                        }
-                    }
-                },
-
-                { $match: { shortSummary: { $exists: true, $ne: "" } } },
-
-                {
-                    $project: {
-                        title: 1,
-                        summary: 1,
-                        shortSummary: 1,
-                        status: 1,
-                        originChamber: 1,
-                        policyArea: 1,
-                        number: 1,
-                        type: 1,
-                        url: 1,
-                        republicanCount: 1,
-                        democratCount: 1,
-                        likes: 1,
-                        dislikes: 1,
-                        recentActions: 1,
-                    }
-                }
+            const pipeline = buildBillAggregation([
+                { $match: { policyArea: { $in: interests } } }
             ]);
 
+            const bills = await Bill.aggregate(pipeline);
             res.status(200).json(bills);
         } catch (error) {
             return res.status(500).json({ message: 'Server error', error });
@@ -92,69 +37,13 @@ class BillService {
             if (savedBillIds.length === 0) {
                 return res.status(200).json([]);
             }
-
             const savedBillObjectIds = savedBillIds.map(id => new mongoose.Types.ObjectId(id));
-            console.log("savedBillObjectIds:", savedBillObjectIds);
-            const bills = await Bill.aggregate([
-                { $match: { _id: { $in: savedBillObjectIds } } },
 
-                {
-                    $addFields: {
-                        allSponsors: { $concatArrays: ["$sponsors", "$cosponsors"] }
-                    }
-                },
-
-                {
-                    $addFields: {
-                        republicanCount: {
-                            $size: {
-                                $filter: {
-                                    input: "$allSponsors", as: "s", cond: { $eq: ["$$s.party", "R"] }
-                                }
-                            }
-                        },
-                        democratCount: {
-                            $size: {
-                                $filter: {
-                                    input: "$allSponsors", as: "s", cond: { $eq: ["$$s.party", "D"] }
-                                }
-                            }
-                        }
-                    },
-                },
-
-                {
-                    $addFields: {
-                        recentActions: {
-                            $slice: [
-                                { $reverseArray: { $sortArray: { input: "$actions", sortBy: { actionDate: 1 } } } },
-                                10
-                            ]
-                        }
-                    }
-                },
-
-                { $match: { shortSummary: { $exists: true, $ne: "" } } },
-
-                {
-                    $project: {
-                        title: 1,
-                        summary: 1,
-                        shortSummary: 1,
-                        status: 1,
-                        originChamber: 1,
-                        policyArea: 1,
-                        number: 1,
-                        type: 1,
-                        url: 1,
-                        republicanCount: 1,
-                        democratCount: 1,
-                        likes: 1,
-                        dislikes: 1,
-                    }
-                }
+            const pipeline = buildBillAggregation([
+                { $match: { _id: { $in: savedBillObjectIds } } }
             ]);
 
+            const bills = await Bill.aggregate(pipeline);
             res.status(200).json(bills);
         } catch (error) {
             return res.status(500).json({ message: 'Server error', error });
@@ -306,7 +195,7 @@ class BillService {
             if (bill.dislikes > 0) bill.dislikes -= 1;
             await bill.save();
 
-            return res.status(200).json({ message: 'Bill unliked successfully' });
+            return res.status(200).json({ message: 'Bill undisliked successfully' });
         } catch (error) {
             return res.status(500).json({ message: 'Server error', error });
         }
@@ -314,64 +203,14 @@ class BillService {
 
     async getTrendingBills(req, res) {
         try {
-            const bills = await Bill.aggregate([
+            const pipeline = buildBillAggregation([
                 { $sort: { likes: -1 } },
-                { $limit: 100 },
-
-                {
-                    $addFields: {
-                        allSponsors: { $concatArrays: ["$sponsors", "$cosponsors"] }
-                    }
-                },
-
-                {
-                    $addFields: {
-                        republicanCount: {
-                            $size: {
-                                $filter: { input: "$allSponsors", as: "s", cond: { $eq: ["$$s.party", "R"] } }
-                            }
-                        },
-                        democratCount: {
-                            $size: {
-                                $filter: { input: "$allSponsors", as: "s", cond: { $eq: ["$$s.party", "D"] } }
-                            }
-                        }
-                    }
-                },
-
-                {
-                    $addFields: {
-                        recentActions: {
-                            $slice: [
-                                { $reverseArray: { $sortArray: { input: "$actions", sortBy: { actionDate: 1 } } } },
-                                10
-                            ]
-                        }
-                    }
-                },
-
-                { $match: { shortSummary: { $exists: true, $ne: "" } } },
-
-                {
-                    $project: {
-                        title: 1,
-                        summary: 1,
-                        shortSummary: 1,
-                        status: 1,
-                        originChamber: 1,
-                        policyArea: 1,
-                        number: 1,
-                        type: 1,
-                        url: 1,
-                        republicanCount: 1,
-                        democratCount: 1,
-                        likes: 1,
-                        dislikes: 1,
-                    }
-                }
+                { $limit: 100 }
             ]);
 
+            const bills = await Bill.aggregate(pipeline);
             res.status(200).json(bills);
+
         } catch (error) {
             return res.status(500).json({ message: 'Server error', error });
         }
@@ -380,7 +219,7 @@ class BillService {
     async getBillByStateReps(req, res) {
         try {
             const { state } = req.params;
-            const bills = await Bill.aggregate([
+            const pipeline = buildBillAggregation([
                 {
                     $match: {
                         $or: [
@@ -388,58 +227,11 @@ class BillService {
                             { "cosponsors.state": state }
                         ]
                     }
-                },
-                {
-                    $addFields: {
-                        allSponsors: { $concatArrays: ["$sponsors", "$cosponsors"] }
-                    }
-                },
-                {
-                    $addFields: {
-                        republicanCount: {
-                            $size: {
-                                $filter: { input: "$allSponsors", as: "s", cond: { $eq: ["$$s.party", "R"] } }
-                            }
-                        },
-                        democratCount: {
-                            $size: {
-                                $filter: { input: "$allSponsors", as: "s", cond: { $eq: ["$$s.party", "D"] } }
-                            }
-                        }
-                    }
-                },
-                {
-                    $addFields: {
-                        recentActions: {
-                            $slice: [
-                                { $reverseArray: { $sortArray: { input: "$actions", sortBy: { actionDate: 1 } } } },
-                                10
-                            ]
-                        }
-                    }
-                },
-
-                { $match: { shortSummary: { $exists: true, $ne: "" } } },
-
-                {
-                    $project: {
-                        title: 1,
-                        summary: 1, 
-                        shortSummary: 1,
-                        status: 1,
-                        policyArea: 1,
-                        number: 1,
-                        type: 1,
-                        url: 1,
-                        republicanCount: 1,
-                        democratCount: 1,
-                        likes: 1,
-                        dislikes: 1,
-                    }
                 }
             ]);
-
+            const bills = await Bill.aggregate(pipeline);
             res.status(200).json(bills);
+
         } catch (error) {
             return res.status(500).json({ message: 'Server error', error });
         }
@@ -447,19 +239,28 @@ class BillService {
 
     async getBillsByKeywords(req, res) {
        try {
-        const { keyword } = req.query;
-        if (!keyword || keyword.trim() === "") {
-            return res.status(400).json({ message: "Keyword is required" });
-        }
+            const { keyword } = req.query;
+            if (!keyword || keyword.trim() === "") {
+                return res.status(400).json({ message: "Keyword is required" });
+            }
 
-        const bills = await Bill.find(
-            { $text: { $search: keyword } },
-            { score: { $meta: "textScore" } } // relevance score
-        )
-        .sort({ score: { $meta: "textScore" } })
-        .limit(100); // optional limit
+            const pipeline = buildBillAggregation([
+                {
+                    $match: {
+                        $text: { $search: keyword }
+                    }
+                },
+                {
+                    $addFields: { score: { $meta: "textScore" } }
+                },
+                {
+                    $sort: { score: { $meta: "textScore" } }
+                },
+                { $limit: 100 }
+            ]);
 
-        res.status(200).json(bills);
+            const bills = await Bill.aggregate(pipeline);
+            res.status(200).json(bills);
 
         } catch (error) {
             console.error(error);
