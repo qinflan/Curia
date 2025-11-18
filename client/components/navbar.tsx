@@ -1,4 +1,5 @@
 import { View, TouchableOpacity, StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, usePathname } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
@@ -21,26 +22,31 @@ export default function Navbar() {
   ];
 
   return (
-    <View style={styles.container}>
-      {navItems.map(({ route, icon }) => {
-        const isActive = pathname === route;
-        const iconName = isActive ? icon : `${icon}-outline`;
+    <SafeAreaView edges={['bottom']} style={styles.safeArea}>
+      <View style={styles.container}>
+        {navItems.map(({ route, icon }) => {
+          const isActive = pathname === route;
+          const iconName = isActive ? icon : `${icon}-outline`;
 
-        return (
-          <TouchableOpacity key={route} onPress={() => router.push(route)}>
-            <Ionicons
-              name={iconName}
-              size={30}
-              color="black"
-            />
-          </TouchableOpacity>
-        );
-      })}
-    </View>
+          return (
+            <TouchableOpacity key={route} onPress={() => router.push(route)}>
+              <Ionicons
+                name={iconName}
+                size={30}
+                color="black"
+              />
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    backgroundColor: "#fff",
+  },
   container: {
     flexDirection: "row",
     alignItems: "center",

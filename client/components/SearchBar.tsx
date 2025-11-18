@@ -44,13 +44,11 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: "row",
         alignItems: "center",
-         backgroundColor: "white",
-        borderRadius: 50,
+        backgroundColor: "white",
+        borderRadius: 60,
         width: "90%",
         paddingHorizontal: 6,
         marginBottom: 30, // temp
-        borderWidth: 1,
-        borderColor: "#ccc"
     },
     textInput: {
         backgroundColor: "white",
