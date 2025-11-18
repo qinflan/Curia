@@ -30,8 +30,12 @@ class BillController {
         return BillService.getTrendingBills(req, res);
     }
     
-    async getBillByStateReps(req, res) {
-        return BillService.getBillByStateReps(req, res);
+    async getStateReps(req,res) {
+        return BillService.getStateReps(req, res);
+    }
+
+    async getBillsByStateRep(req, res) {
+        return BillService.getBillsByStateRep(req, res);
     }
 
     async searchBills(req, res) {

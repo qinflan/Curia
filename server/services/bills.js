@@ -3,8 +3,6 @@ const User = require("../models/user");
 const mongoose = require("mongoose");
 const { buildBillAggregation } = require("../utils/billAggregation")
 
-
-// TODO: return data aggregation is super repetitive so refactor it to make this more clean 
 class BillService {
     async getBillsByPolicyAreas(req, res) {
         try {
@@ -187,7 +185,7 @@ class BillService {
 
             const dislikedIndex = user.dislikedBills.findIndex(id => id.equals(bill._id));
             if (dislikedIndex === -1) {
-                return res.status(400).json({ message: 'Bill not liked yet' });
+                return res.status(400).json({ message: 'Bill not disliked yet' });
             }
             user.dislikedBills.splice(dislikedIndex, 1);
             await user.save();
@@ -216,15 +214,66 @@ class BillService {
         }
     }
 
-    async getBillByStateReps(req, res) {
+    async getStateReps(req, res) {
         try {
             const { state } = req.params;
+            const sponsors = await Bill.aggregate([
+            { $match: { "sponsors.state": state }},
+            { $unwind: "$sponsors" },
+            { $match: { "sponsors.state": state }},
+            { 
+                $group: {
+                _id: "$sponsors.bioguideId",
+                firstName: { $first: "$sponsors.firstName" },
+                lastName: { $first: "$sponsors.lastName" },
+                party: { $first: "$sponsors.party" },
+                state: { $first: "$sponsors.state" }
+                }
+            }
+            ]);
+
+            const cosponsors = await Bill.aggregate([
+            { $match: { "cosponsors.state": state }},
+            { $unwind: "$cosponsors" },
+            { $match: { "cosponsors.state": state }},
+            { 
+                $group: {
+                _id: "$cosponsors.bioguideId",
+                firstName: { $first: "$cosponsors.firstName" },
+                lastName: { $first: "$cosponsors.lastName" },
+                party: { $first: "$cosponsors.party" },
+                state: { $first: "$cosponsors.state" }
+                }
+            }
+            ]);
+
+            const reps = [...sponsors, ...cosponsors].reduce((acc, rep) => {
+            acc[rep._id] = rep;
+            return acc;
+            }, {});
+
+            res.status(200).json(Object.values(reps));
+
+        } catch (err) {
+            console.error(err);
+            return res.status(500).json({ message: "Server error", err });
+        }
+    }
+
+    async getBillsByStateRep(req, res) {
+        try {
+            const { bioguideId } = req.params;
+
+            if (!bioguideId) {
+                return res.status(400).json({ message: "bioguideId is required" });
+            }
+
             const pipeline = buildBillAggregation([
                 {
                     $match: {
                         $or: [
-                            { "sponsors.state": state },
-                            { "cosponsors.state": state }
+                            { "sponsors.bioguideId": bioguideId },
+                            { "cosponsors.bioguideId": bioguideId }
                         ]
                     }
                 }

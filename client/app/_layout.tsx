@@ -12,9 +12,18 @@ function AppNavigator() {
   const segments = useSegments();
   const navigationState = useRootNavigationState();
 
-  // segment public (unauthenticated) routes
   const publicRoutes = ["index", "login", "signup"];
-  const protectedRoutes = ["homeDashboard", "recommendedFeed", "trending", "accountSettings"];
+  const protectedRoutes = [
+    "homeDashboard", 
+    "recommendedFeed", 
+    "trending", 
+    "accountSettings", 
+    "stateRepBills",
+    "updateInterests",
+    "updateLocation",
+    "updateSignin",
+    "updatePassword",
+  ];
   const setupRoute = "accountSetup";
 
   useEffect(() => {
@@ -48,8 +57,13 @@ function AppNavigator() {
         <Stack.Screen name="faq" />
         <Stack.Screen name="accountSetup" />
         <Stack.Screen name="homeDashboard" />
+        <Stack.Screen name="stateRepBills" />
         <Stack.Screen name="recommendedFeed" />
         <Stack.Screen name="accountSettings" />
+        <Stack.Screen name="updateInterests" />
+        <Stack.Screen name="updateLocation" />
+        <Stack.Screen name="updateSignin" />
+        <Stack.Screen name="updatePassword" />
       </Stack>
       {showNavbar && <Navbar />}
       </View>
