@@ -8,7 +8,7 @@ type SearchBarProps = {
     onSearch?: (results: Bill[], keyword: string) => void;
 };
 
-const SearchBar: React.FC<SearchBarProps> = ( { onSearch }) => {
+const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
     const [keywords, setKeywords] = useState<string>("");
 
     const handleSearchBills = async () => {
@@ -20,6 +20,12 @@ const SearchBar: React.FC<SearchBarProps> = ( { onSearch }) => {
         }
     }
 
+    const handleClearSearch = async () => {
+        if (keywords.length > 0) {
+            setKeywords("")
+        }
+    }
+
     return (
         <View style={styles.searchBarContainer}>
             <TextInput
@@ -27,14 +33,25 @@ const SearchBar: React.FC<SearchBarProps> = ( { onSearch }) => {
                 onChangeText={setKeywords}
                 value={keywords}
                 placeholder="search bills"
+                returnKeyType="search"
+                onSubmitEditing={handleSearchBills}
             />
-            <TouchableOpacity style={styles.searchBtn} onPress={handleSearchBills}>
-                <Ionicons 
-                    name="search"
-                    size={14} 
+            {keywords.length === 0 ?
+                (<TouchableOpacity style={styles.searchBtn} onPress={handleSearchBills}>
+                    <Ionicons
+                        name="search"
+                        size={14}
+                        color="white"
+                    />
+                </TouchableOpacity>) :
+            (<TouchableOpacity style={styles.searchBtn} onPress={handleClearSearch}>
+                <Ionicons
+                    name="close"
+                    size={14}
                     color="white"
                 />
-            </TouchableOpacity>
+            </TouchableOpacity>)
+}
         </View>
     )
 }
@@ -48,9 +65,11 @@ const styles = StyleSheet.create({
         borderRadius: 60,
         width: "90%",
         paddingHorizontal: 6,
+        paddingVertical: 4,
         marginBottom: 30, // temp
     },
     textInput: {
+        flex: 1,
         backgroundColor: "white",
         borderRadius: 50,
         fontFamily: 'InterSemiBold',
