@@ -11,24 +11,25 @@ export default function RecommendedFeed() {
   const [bills, setBills] = useState<Bill[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const [user, setUser] = useState<{
-  savedBills: string[];
-  likedBills: string[];
-  dislikedBills: string[];
+    savedBills: string[];
+    likedBills: string[];
+    dislikedBills: string[];
   } | null>(null);
 
-useEffect(() => {
-  const loadUser = async () => {
-    try {
-      const fetchedUser = await getUser();
-      setUser(fetchedUser);
-    } catch (err) {
-      console.error("Error loading user:", err);
-    }
-  };
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const fetchedUser = await getUser();
+        setUser(fetchedUser);
+      } catch (err) {
+        console.error("Error loading user:", err);
+      }
+    };
 
-  loadUser();
-}, []);
+    loadUser();
+  }, []);
 
   const loadRecommendedBills = useCallback(async () => {
     try {
@@ -45,7 +46,7 @@ useEffect(() => {
     loadRecommendedBills();
   }, [loadRecommendedBills]);
 
-    const onRefresh = useCallback(async () => {
+  const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await loadRecommendedBills();
     setRefreshing(false);
@@ -53,49 +54,54 @@ useEffect(() => {
 
   if (loading) {
     return (
-      <SpinnerFallback/>
+      <SpinnerFallback />
     );
   }
 
   return (
 
-    <ScrollView contentContainerStyle={styles.scrollViewContainer} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>}>
-      <SearchBar onSearch={setBills} />
+    <ScrollView contentContainerStyle={styles.scrollViewContainer} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
+      <SearchBar onSearch={(results, keyword) => {
+        setBills(results);
+        setSearchTerm(keyword);
+      }} />
       <View style={styles.headerContainer}>
-        <Text style={styles.headerText}>Recommended</Text>
+        <Text style={styles.headerText}>
+          {searchTerm ? `Results for "${searchTerm}"` : "Recommended"}
+        </Text>
       </View>
       <View style={styles.billsContainer}>
-      {user && bills.map((bill) => (
-        <BillWidget key={bill._id} bill={bill} user={user} />
-      ))}
+        {user && bills.map((bill) => (
+          <BillWidget key={bill._id} bill={bill} user={user} />
+        ))}
       </View>
     </ScrollView>
-  );  
+  );
 }
 
-  const styles = StyleSheet.create({
-    scrollViewContainer: {
-      width: '100%',
-      alignItems: 'center',
-      paddingVertical: 16,
-    },
+const styles = StyleSheet.create({
+  scrollViewContainer: {
+    width: '100%',
+    alignItems: 'center',
+    paddingVertical: 16,
+  },
 
-    headerText: {
-      fontSize: 20,
-      marginBottom: 16,
-      fontFamily: 'InterSemiBold',
-      letterSpacing: -0.8,
-      alignSelf: "flex-start",
-      paddingHorizontal: 10,
-    },
+  headerText: {
+    fontSize: 20,
+    marginBottom: 16,
+    fontFamily: 'InterSemiBold',
+    letterSpacing: -0.8,
+    alignSelf: "flex-start",
+    paddingHorizontal: 10,
+  },
 
-    billsContainer: {
-      width: '90%',
-      alignItems: 'center',
-    },
+  billsContainer: {
+    width: '90%',
+    alignItems: 'center',
+  },
 
-    headerContainer: {
-      width: '90%',
-      alignItems: 'center',
-    }
-  });
+  headerContainer: {
+    width: '90%',
+    alignItems: 'center',
+  }
+});

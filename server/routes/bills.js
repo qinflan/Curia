@@ -10,7 +10,8 @@ router.put('/:billId/undislike', authenticateAccessToken, BillController.undisli
 router.put('/:billId/dislike', authenticateAccessToken, BillController.dislikeBill);
 router.get('/saved', authenticateAccessToken, BillController.getSavedBills);
 router.get('/trending', authenticateAccessToken, BillController.getTrendingBills);
-router.get('/reps/:state', authenticateAccessToken, BillController.getBillByStateReps);
+router.get('/reps/:state', authenticateAccessToken, BillController.getStateReps);
+router.get('/rep/:bioguideId', authenticateAccessToken, BillController.getBillsByStateRep);
 router.get('/search', authenticateAccessToken, BillController.searchBills);
 
 module.exports = router;

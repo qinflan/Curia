@@ -91,12 +91,22 @@ export const undislikeBill = async (billId: string) => {
     return response.data;
 }
 
-export const fetchStateRepBills = async (stateCode: string) => {
+export const fetchStateReps = async (state: string) => {
     const accessToken = await getToken("access_token");
     if (!accessToken) throw new Error("No access token stored.");
 
     const user = await getUser();
     const response = await axios.get(`${API_BASE_URL}/bills/reps/${user.state}`, {
+        headers: { Authorization: `Bearer ${accessToken}` }
+    });
+    return response.data;
+}
+
+export const fetchBillsByRep = async (bioguideId: string) => {
+    const accessToken = await getToken("access_token");
+    if (!accessToken) throw new Error("No access token stored.");
+
+    const response = await axios.get(`${API_BASE_URL}/bills/rep/${bioguideId}`, {
         headers: { Authorization: `Bearer ${accessToken}` }
     });
     return response.data;

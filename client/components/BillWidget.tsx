@@ -210,13 +210,6 @@ const styles = StyleSheet.create({
         borderRadius: 22,
         padding: 16,
         marginBottom: 16,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 0 },
-        shadowOpacity: 0.01,
-        shadowRadius: 12,
-        elevation: 1,
-        borderWidth: 1,
-        borderColor: "#c4c4c4ff"
     },
 
     title: {

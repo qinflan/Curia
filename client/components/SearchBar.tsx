@@ -5,7 +5,7 @@ import { searchBillsByKeywords } from "@/api/billsHandler"
 import { Bill } from "./types/BillWidgetTypes"
 
 type SearchBarProps = {
-    onSearch?: (results: Bill[]) => void;
+    onSearch?: (results: Bill[], keyword: string) => void;
 };
 
 const SearchBar: React.FC<SearchBarProps> = ( { onSearch }) => {
@@ -14,7 +14,7 @@ const SearchBar: React.FC<SearchBarProps> = ( { onSearch }) => {
     const handleSearchBills = async () => {
         try {
             const bills = await searchBillsByKeywords(keywords)
-            onSearch?.(bills)
+            onSearch?.(bills, keywords)
         } catch (err) {
             console.error("bill search error: ", err)
         }
@@ -48,12 +48,7 @@ const styles = StyleSheet.create({
         borderRadius: 50,
         width: "90%",
         paddingHorizontal: 6,
-        marginBottom: 20, // temp
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 0 },
-        shadowOpacity: 0.01,
-        shadowRadius: 12,
-        elevation: 1,
+        marginBottom: 30, // temp
         borderWidth: 1,
         borderColor: "#ccc"
     },
@@ -62,7 +57,8 @@ const styles = StyleSheet.create({
         borderRadius: 50,
         fontFamily: 'InterSemiBold',
         letterSpacing: -0.4,
-        marginLeft: 8
+        marginLeft: 8,
+        fontSize: 12
     },
     searchBtn: {
         backgroundColor: "#000000ff",

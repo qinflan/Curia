@@ -14,7 +14,7 @@ function AppNavigator() {
 
   // segment public (unauthenticated) routes
   const publicRoutes = ["index", "login", "signup"];
-  const protectedRoutes = ["homeDashboard", "recommendedFeed", "trending", "accountSettings"];
+  const protectedRoutes = ["homeDashboard", "recommendedFeed", "trending", "accountSettings", "stateRepBills"];
   const setupRoute = "accountSetup";
 
   useEffect(() => {
@@ -48,6 +48,7 @@ function AppNavigator() {
         <Stack.Screen name="faq" />
         <Stack.Screen name="accountSetup" />
         <Stack.Screen name="homeDashboard" />
+        <Stack.Screen name="stateRepBills" />
         <Stack.Screen name="recommendedFeed" />
         <Stack.Screen name="accountSettings" />
       </Stack>
