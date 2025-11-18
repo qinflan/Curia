@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react"
-import { View, TouchableOpacity, Text, ScrollView, StyleSheet } from "react-native"
+import { View, Text, ScrollView, StyleSheet } from "react-native"
 import { useLocalSearchParams, useRouter } from "expo-router";
 import BillWidget from "@/components/BillWidget";
 import { fetchBillsByRep } from "@/api/billsHandler";
@@ -46,7 +46,7 @@ export default function StateRepBills() {
     return (
         <ScrollView contentContainerStyle={styles.container}>
             <View style={styles.header}>
-                <Ionicons name="arrow-back-circle" style={styles.backButton} size={28} onPress={() => router.back()}/>
+                <Ionicons name="arrow-back-circle" style={styles.backButton} size={32} onPress={() => router.back()}/>
                 <Text style={styles.title}>{formatName(firstName, lastName)}&apos;s Bill Report</Text>
             </View>
             {bills.length > 0 ? (
@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "center",
-        marginBottom: 16,
+        marginBottom: 22,
         position: "relative",
     },
     backButton: {

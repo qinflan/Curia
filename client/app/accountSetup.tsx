@@ -4,7 +4,6 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  FlatList,
   ScrollView,
   StyleSheet,
   Alert,
@@ -114,7 +113,7 @@ export default function AccountSetup() {
 
         {step === 1 && (
           <BlurView intensity={20} tint="dark" style={styles.blurContainer}>
-            <Text style={styles.header}>Let's setup your account.</Text>
+            <Text style={styles.header}>Let&apos;s setup your account.</Text>
             <Text style={styles.subHeader}>What’s your name?</Text>
             <TextInput
               placeholder="First Name"

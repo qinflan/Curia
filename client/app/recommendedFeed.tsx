@@ -1,4 +1,4 @@
-import { Text, View, ScrollView, StyleSheet, ActivityIndicator, RefreshControl } from "react-native";
+import { Text, View, ScrollView, StyleSheet, RefreshControl } from "react-native";
 import { useState, useEffect, useCallback } from "react";
 import { getUser } from "@/api/authHandler";
 import { fetchRecommendedBills } from "@/api/billsHandler";

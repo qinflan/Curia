@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import {
   fetchSavedBills,
-  fetchBillsByRep,
   fetchStateReps
 } from "@/api/billsHandler";
 import { getUser } from "@/api/authHandler";
 import BillWidget from "@/components/BillWidget";
 import { Bill } from "@/components/types/BillWidgetTypes";
+import SpinnerFallback from "@/components/SpinnerFallback";
 
 export default function HomeDashboard() {
   const router = useRouter();
@@ -82,15 +82,7 @@ export default function HomeDashboard() {
 
   if (loading) {
     return (
-      <View
-        style={{
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <ActivityIndicator />
-      </View>
+      <SpinnerFallback/>
     );
   }
 
