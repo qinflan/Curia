@@ -1,4 +1,4 @@
-/**
+/** NOTE: REFACTOR TO USE ACTION CODE MAPPING INSTEAD OF STRING MATCHING
  * derives a bill's timeline and current status from its recent actions
  * @param {Array<{actionDate: string, text: string}>} actions - the most recent actions for a bill
  * @param {string} actions[].billType - the type of the bill (e.g., "hr", "s", etc.)

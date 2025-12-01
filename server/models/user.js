@@ -38,10 +38,6 @@ const userSchema = new mongoose.Schema({
       type: Boolean,
       default: false
     },
-    notifications: { // add FCM logic later and likely store a device obj?
-      type: Boolean,
-      default: false
-    }, 
     theme: { 
       type: String, 
       enum: ['light', 'dark'], 
@@ -51,6 +47,10 @@ const userSchema = new mongoose.Schema({
   savedBills: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Bill' }],
   likedBills: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Bill' }],
   dislikedBills: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Bill' }],
+  expoPushTokens: {
+    type: [String],
+    default: []
+  },
   createdAt: { 
     type: Date, 
     default: Date.now 

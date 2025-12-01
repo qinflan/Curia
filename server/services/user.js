@@ -170,6 +170,33 @@ class UserService {
         }  
     }
 
+    async registerPushToken(req, res) {
+        const userId = req.user.userId;
+        const { token } = req.body;
+
+        if (!token) {
+            return res.status(400).json({ message: "Push token is required" });
+        }
+
+        try {
+            const user = await User.findById(userId);
+            if (!user) {
+                return res.status(404).json({ message: "User not found" });
+            }
+
+            // Avoid duplicates
+            if (!user.expoPushTokens.includes(token)) {
+                user.expoPushTokens.push(token);
+                await user.save();
+            }
+
+            return res.status(200).json({ message: "Push token registered" });
+        } catch (error) {
+            return res.status(500).json({ message: 'Server error', error });
+        }
+
+    }
+
 };
 
 

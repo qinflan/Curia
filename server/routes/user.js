@@ -17,5 +17,8 @@ router.put('/update', authenticateAccessToken, UserController.updateUser);
 router.post('/bill/save/:billId', authenticateAccessToken, UserController.saveBill);
 router.delete('/bill/unsave/:billId', authenticateAccessToken, UserController.unsaveBill);
 
+// push notifications
+router.post('/register-push-token', authenticateAccessToken, UserController.registerPushToken);
+
 
 module.exports = router;

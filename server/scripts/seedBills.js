@@ -1,8 +1,13 @@
 const Bill = require("../models/bill"); 
+const User = require("../models/user");
 const axios = require("axios");
 const dotenv = require("dotenv");
-const normalizeBillStatus = require("../utils/normalizeBillStatus");
 const { convert } = require('html-to-text')
+
+const normalizeBillStatus = require("../utils/normalizeBillStatus");
+const { sendPushNotification } = require('../services/pushNotification');
+
+const ACTION_CODE_MAP = require('./constants').ACTION_CODE_MAP;
 
 dotenv.config();
 
@@ -19,35 +24,24 @@ const fetchRecentBills = async () => {
             }
         });
         const bills = response.data.bills || [];
-
-        for (const bill of bills) {
-            await Bill.updateOne(
-                { congress: bill.congress, number: bill.number, type: bill.type },
-
-                { 
-                    $set: {
-                        title: bill.title,
-                        originChamber: bill.originChamber,
-                        updateDate: bill.updateDate,
-                        latestAction: bill.latestAction,
-                        url: bill.url,
-                        type: bill.type,
-                    }
-                },
-                { upsert: true }
-            );
-        }
-
+        return bills;
     } catch (error) {
         console.error("Error fetching recent bills:", error);
     }
 };
 
-const enrichBills = async () => {
-    const billsToEnrich = await Bill.find({ enriched: { $ne: true } }).limit(250);
-    console.log(`Found ${billsToEnrich.length} bills to enrich.`);
-        for (const b of billsToEnrich) {
+const enrichBills = async (apiBills) => {
+        for (const b of apiBills) {
             try {
+                const dbBill = await Bill.findOne({
+                    congress: b.congress,
+                    number: b.number,
+                    type: b.type
+                });
+
+                if (dbBill && new Date(b.updateDate) <= new Date(dbBill.updateDate)) {
+                continue; // nothing to update so skip
+                }
 
                 const enrichBillBaseUrl = `${CONGRESS_BASE_URL}/bill/${b.congress}/${b.type.toLowerCase()}/${b.number}`;
 
@@ -69,14 +63,39 @@ const enrichBills = async () => {
                 
                 const detailed = resBillDetails.data.bill;
                 const policyArea = detailed.policyArea?.name || null;
+
                 const sponsors = normalizeSponsors(detailed.sponsors);
                 const cosponsors =  normalizeCosponsors(resBillCosponsors.data.cosponsors);
+
                 const summaries = resBillSummaries.data.summaries || [];
                 const latestSummary = summaries.sort((a, b) => new Date(b.updateDate) - new Date(a.updateDate))[0];
-                const actions = normalizeActions(resBillActions.data.actions);
-                const status = normalizeBillStatus(actions, b.type);
 
-                // console.log(`Normalized status for ${b.type.toUpperCase()} ${b.number}:`, status);
+                const actions = normalizeActions(resBillActions.data.actions);
+                const latestAction = actions.length ? actions[actions.length -1] : {};
+
+                // send push notifications for significant actions
+                // compare latest action date with dbBill latest action date to determine if we need to send notifs
+                if (!dbBill || new Date(latestAction.actionDate) > new Date(dbBill.latestAction?.actionDate || 0)) {
+                    const significantText = ACTION_CODE_MAP[latestAction.actionCode];
+                    
+                    if (significantText) {
+                        const usersToNotify = await User.find({
+                            savedBills: dbBill ? dbBill._id : null,
+                            expoPushToken: { $exists: true, $ne: null }
+                        });
+
+                        const tokens = usersToNotify.map(u => u.expoPushToken).filter(Boolean);
+
+                        if (tokens.length) {
+                            await sendPushNotification(tokens, {
+                                title: `Update for ${b.title}`,
+                                body: significantText,
+                                data: { billId: dbBill ? dbBill._id : null, latestActionCode: latestAction.actionCode }
+                            });
+                        }
+                    }
+                }
+                const status = normalizeBillStatus(actions, b.type);
 
                 // use regex to get meaningful summaries (second html element)
                 const summaryText = normalizeSummaries(latestSummary);
@@ -85,22 +104,26 @@ const enrichBills = async () => {
                 const summary = lines.slice(1).join(" ").replace(/\s+/g, ' ').trim();
                 const shortSummary = extractShortSummary(summary);
 
-                // console.log(summary);
-
                 await Bill.updateOne(
-                    { _id: b._id },
+                    { congress: b.congress, number: b.number, type: b.type },
                     {
                         $set: {
+                            title: b.title,
+                            originChamber: b.originChamber,
+                            updateDate: b.updateDate,
+                            latestAction,
+                            url: b.url,
+                            type: b.type,
                             policyArea,
                             summary,
                             sponsors,
                             cosponsors,
-                            enriched: true,
                             actions,
                             status,
                             shortSummary,
                         }
-                    }
+                    },
+                    { upsert: true }
                 );
             console.log(`Enriched ${b.type.toUpperCase()} ${b.number}`);
             } catch (err) {
@@ -140,11 +163,19 @@ const normalizeActions = (actions) => {
         }
     }
 
-    const normalizedActions = (actions || []).map(a => ({
+    if (!Array.isArray(actions)) {
+        return [];
+    }
+
+    const normalizedActions = (actions || [])
+    .filter(a => a.actionCode && a.actionDate)
+    .map(a => ({
+        actionCode: a.actionCode,
         actionDate: a.actionDate,
         type: a.type,
         text: a.text,
-    }));
+    }))
+    .sort((a, b) => new Date(a.actionDate) - new Date(b.actionDate));
 
     return normalizedActions;
 };

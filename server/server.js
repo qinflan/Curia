@@ -21,12 +21,9 @@ const mongoURI = process.env.MONGO_URI;
 
 mongoose.connect(mongoURI)
   .then(async () => {
-    console.log("Connected to MongoDB database!")
+    console.log("Connected to MongoDB database!");
 
-    await fetchRecentBills();
-    await enrichBills();
-
-    console.log("Bill fetch and enrichment complete");
+    require('./scripts/cron');
 
     app.listen(PORT, () => {
       console.log(`Server is running on http://localhost:${PORT}`);

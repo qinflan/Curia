@@ -26,6 +26,9 @@ class UserController {
     async unsaveBill(req, res) {
         return UserService.unsaveBill(req, res);
     }
+    async registerPushToken(req, res) {
+        return UserService.registerPushToken(req,res);
+    }
 }
 
 
