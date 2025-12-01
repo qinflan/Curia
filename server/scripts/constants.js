@@ -3,9 +3,9 @@
 // the codes the API returns is very inconsistent as time passes, so this likely needs updates over time
 exports.ACTION_CODE_MAP = {
   "1000": "Bill introduced in House",
-  "Intro-H": "introducedHouse", // older
+  "Intro-H": "Bill Introduced in House", // older
   "10000": "Bill introduced in Senate",
-  "Intro-S": "introducedSenate", // older
+  "Intro-S": "Bill Introduced in Senate", // older
 
   "5000": "Reported to House",
   "14000": "Reported to Senate",
