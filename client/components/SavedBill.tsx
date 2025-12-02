@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView} from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Linking} from 'react-native'
 import {VerticalStatusProgress} from 'react-native-vertical-status-progress';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import {
@@ -21,7 +21,7 @@ type BillWidgetProps = {
     }
 };
 
-const BillWidget: React.FC<BillWidgetProps> = ({bill, user}) => {
+const SavedBillWidget: React.FC<BillWidgetProps> = ({bill, user}) => {
     const [expanded, setExpanded] = useState(false);
     const [liked, setLiked] = useState(user.likedBills.includes(bill._id));
     const [disliked, setDisliked] = useState(user.dislikedBills.includes(bill._id));
@@ -108,6 +108,17 @@ const BillWidget: React.FC<BillWidgetProps> = ({bill, user}) => {
         }  
     };
 
+    const openBillUrl = async () => {
+        if (bill.url) {
+            const supported = await Linking.canOpenURL(bill.url);
+            if (supported) {
+                await Linking.openURL(bill.url);
+            } else {
+                console.warn("Can't open URL:", bill.url);
+            }
+        }
+    };
+
   return (
     <View style={styles.card}>
         <Text style={styles.title}>{bill.title}</Text>
@@ -152,6 +163,9 @@ const BillWidget: React.FC<BillWidgetProps> = ({bill, user}) => {
                             futureSubtitleColor: '#000000a6',
                         }}
                         />
+                <TouchableOpacity onPress={openBillUrl}>
+                    <Text style={{color: '#007aff', fontSize: 12}}>View Bill Details</Text>
+                </TouchableOpacity>
                 </ScrollView>
             </>
         )}
@@ -311,4 +325,4 @@ const styles = StyleSheet.create({
     
 });
 
-export default BillWidget
+export default SavedBillWidget

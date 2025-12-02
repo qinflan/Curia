@@ -5,21 +5,24 @@ const dotenv = require("dotenv");
 const { convert } = require('html-to-text')
 
 const normalizeBillStatus = require("../utils/normalizeBillStatus");
-// const { sendPushNotification } = require('../services/pushNotification');
+const { sendPushNotification } = require('../services/pushNotification');
 
-// const ACTION_CODE_MAP = require('./constants').ACTION_CODE_MAP;
+const ACTION_CODE_MAP = require('./constants').ACTION_CODE_MAP;
 
 dotenv.config();
 
 const API_KEY = process.env.CONGRESS_GOV_API_KEY;
 const CONGRESS_BASE_URL = "https://api.congress.gov/v3";
 
+console.log("Bill enrichment module loaded");
+console.log("ACTION_CODE_MAP:", ACTION_CODE_MAP);
+
 const fetchRecentBills = async () => {
     try {
         const response = await axios.get(`${CONGRESS_BASE_URL}/bill`, {
             params: {
                 api_key: API_KEY,
-                sort: "updateDate desc",
+                sort: "updateDate+desc",
                 limit: 250,
             }
         });
@@ -75,26 +78,27 @@ const enrichBills = async (apiBills) => {
 
                 // send push notifications for significant actions
                 // compare latest action date with dbBill latest action date to determine if we need to send notifs
-                // if (!dbBill || new Date(latestAction.actionDate) > new Date(dbBill.latestAction?.actionDate || 0)) {
-                //     const significantText = ACTION_CODE_MAP[latestAction.actionCode];
+                if (!dbBill || new Date(latestAction.actionDate) > new Date(dbBill.latestAction?.actionDate || 0)) {
+                    const significantText = ACTION_CODE_MAP[latestAction.actionCode];
                     
-                //     if (significantText) {
-                //         const usersToNotify = await User.find({
-                //             savedBills: dbBill ? dbBill._id : null,
-                //             expoPushToken: { $exists: true, $ne: null }
-                //         });
+                    if (dbBill && significantText) {
+                        const usersToNotify = await User.find({
+                            savedBills: dbBill._id,
+                            expoPushTokens: { $exists: true, $ne: []}
+                        });
 
-                //         const tokens = usersToNotify.map(u => u.expoPushToken).filter(Boolean);
+                        const tokens = usersToNotify.flatMap(u => u.expoPushTokens).filter(Boolean);
+                        console.log("Tokens being sent:", tokens);
 
-                //         if (tokens.length) {
-                //             await sendPushNotification(tokens, {
-                //                 title: `Update for ${b.title}`,
-                //                 body: significantText,
-                //                 data: { billId: dbBill ? dbBill._id : null, latestActionCode: latestAction.actionCode }
-                //             });
-                //         }
-                //     }
-                // };
+                        if (tokens.length > 0) {
+                            await sendPushNotification(tokens, {
+                                title: `Update for ${b.title}`,
+                                body: significantText,
+                                data: { billId: dbBill ? dbBill._id : null, latestActionCode: latestAction.actionCode }
+                            });
+                        }
+                    }
+                };
                 const status = normalizeBillStatus(actions, b.type);
 
                 // use regex to get meaningful summaries (second html element)

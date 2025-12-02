@@ -7,7 +7,7 @@ import {
   fetchStateReps
 } from "@/api/billsHandler";
 import { getUser } from "@/api/authHandler";
-import BillWidget from "@/components/BillWidget";
+import SavedBillWidget from "@/components/SavedBill";
 import { Bill } from "@/components/types/BillWidgetTypes";
 import SpinnerFallback from "@/components/SpinnerFallback";
 
@@ -95,7 +95,7 @@ export default function HomeDashboard() {
       <View style={styles.billsContainer}>
         {user && savedBills.length > 0 ?
 
-          (savedBills.map((bill) => (<BillWidget key={bill._id} bill={bill} user={user} />)))
+          (savedBills.map((bill) => (<SavedBillWidget key={bill._id} bill={bill} user={user} />)))
           :
           (
             <View style={styles.emptyBillsContainer}>

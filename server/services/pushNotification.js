@@ -1,17 +1,14 @@
-const fetch = require("node-fetch");
+const { Expo } = require("expo-server-sdk");
+const expo = new Expo();
 
-const EXPO_PUSH_ENDPOINT = "https://exp.host/--/api/v2/push/send";
+async function sendPushNotification(pushTokens, message) {
+  const tokens = Array.isArray(pushTokens)
+    ? pushTokens
+    : [pushTokens];
 
-/**
- * Send a push notification via Expo
- * @param {string|string[]} token - single token or array of Expo push tokens
- * @param {object} message - { title, body, data }
- */
-async function sendPushNotification(token, message) {
-  const tokens = Array.isArray(token) ? token : [token];
+  const validTokens = tokens.filter(t => Expo.isExpoPushToken(t));
 
-  // Expo requires messages in this format
-  const messages = tokens.map(t => ({
+  const messages = validTokens.map(t => ({
     to: t,
     sound: "default",
     title: message.title,
@@ -19,19 +16,19 @@ async function sendPushNotification(token, message) {
     data: message.data || {},
   }));
 
-  try {
-    const response = await fetch(EXPO_PUSH_ENDPOINT, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(messages),
-    });
+  const chunks = expo.chunkPushNotifications(messages);
+  const tickets = [];
 
-    const data = await response.json();
-    console.log("Expo push response:", data);
-    return data;
-  } catch (err) {
-    console.error("Error sending push notification:", err);
+  for (let chunk of chunks) {
+    try {
+      const receipt = await expo.sendPushNotificationsAsync(chunk);
+      tickets.push(...receipt);
+    } catch (err) {
+      console.error("Expo push error:", err);
+    }
   }
+
+  return tickets;
 }
 
 module.exports = { sendPushNotification };
