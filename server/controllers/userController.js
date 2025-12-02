@@ -29,6 +29,15 @@ class UserController {
     async registerPushToken(req, res) {
         return UserService.registerPushToken(req,res);
     }
+    async registerPushToken(req, res) {
+        return UserService.registerPushToken(req,res);
+    }
+    async getNotifications(req, res) {
+        return UserService.getNotifications(req,res);
+    }
+    async markNotificationRead(req, res) {
+        return UserService.markNotificationRead(req,res);
+    }
 }
 
 

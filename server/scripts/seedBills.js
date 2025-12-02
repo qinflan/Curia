@@ -1,4 +1,4 @@
-const Bill = require("../models/bill"); 
+const Bill = require("../models/bill");
 const User = require("../models/user");
 const axios = require("axios");
 const dotenv = require("dotenv");
@@ -6,6 +6,7 @@ const { convert } = require('html-to-text')
 
 const normalizeBillStatus = require("../utils/normalizeBillStatus");
 const { sendPushNotification } = require('../services/pushNotification');
+const addNotificationToInbox = require('../services/addNotification');
 
 const ACTION_CODE_MAP = require('./constants').ACTION_CODE_MAP;
 
@@ -34,106 +35,115 @@ const fetchRecentBills = async () => {
 };
 
 const enrichBills = async (apiBills) => {
-        for (const b of apiBills) {
-            try {
-                const dbBill = await Bill.findOne({
-                    congress: b.congress,
-                    number: b.number,
-                    type: b.type
-                });
+    for (const b of apiBills) {
+        try {
+            const dbBill = await Bill.findOne({
+                congress: b.congress,
+                number: b.number,
+                type: b.type
+            });
 
-                if (dbBill && new Date(b.updateDate) <= new Date(dbBill.updateDate)) {
+            if (dbBill && new Date(b.updateDate) <= new Date(dbBill.updateDate)) {
                 continue; // nothing to update so skip
-                }
+            }
 
-                const enrichBillBaseUrl = `${CONGRESS_BASE_URL}/bill/${b.congress}/${b.type.toLowerCase()}/${b.number}`;
+            const enrichBillBaseUrl = `${CONGRESS_BASE_URL}/bill/${b.congress}/${b.type.toLowerCase()}/${b.number}`;
 
-                const resBillDetails = await axios.get(enrichBillBaseUrl, {
-                    params: { api_key: API_KEY }
-                });
+            const resBillDetails = await axios.get(enrichBillBaseUrl, {
+                params: { api_key: API_KEY }
+            });
 
-                const resBillCosponsors = await axios.get(`${enrichBillBaseUrl}/cosponsors`, {
-                    params: { api_key: API_KEY, limit: 250 }
-                });
+            const resBillCosponsors = await axios.get(`${enrichBillBaseUrl}/cosponsors`, {
+                params: { api_key: API_KEY, limit: 250 }
+            });
 
-                const resBillSummaries = await axios.get(`${enrichBillBaseUrl}/summaries`, {
-                    params: { api_key: API_KEY, limit: 250 }
-                });
+            const resBillSummaries = await axios.get(`${enrichBillBaseUrl}/summaries`, {
+                params: { api_key: API_KEY, limit: 250 }
+            });
 
-                const resBillActions = await axios.get(`${enrichBillBaseUrl}/actions`, {
-                    params: { api_key: API_KEY, limit: 250 },
-                });
-                
-                const detailed = resBillDetails.data.bill;
-                const policyArea = detailed.policyArea?.name || null;
+            const resBillActions = await axios.get(`${enrichBillBaseUrl}/actions`, {
+                params: { api_key: API_KEY, limit: 250 },
+            });
 
-                const sponsors = normalizeSponsors(detailed.sponsors);
-                const cosponsors =  normalizeCosponsors(resBillCosponsors.data.cosponsors);
+            const detailed = resBillDetails.data.bill;
+            const policyArea = detailed.policyArea?.name || null;
 
-                const summaries = resBillSummaries.data.summaries || [];
-                const latestSummary = summaries.sort((a, b) => new Date(b.updateDate) - new Date(a.updateDate))[0];
+            const sponsors = normalizeSponsors(detailed.sponsors);
+            const cosponsors = normalizeCosponsors(resBillCosponsors.data.cosponsors);
 
-                const actions = normalizeActions(resBillActions.data.actions);
-                const latestAction = actions.length ? actions[actions.length -1] : {};
+            const summaries = resBillSummaries.data.summaries || [];
+            const latestSummary = summaries.sort((a, b) => new Date(b.updateDate) - new Date(a.updateDate))[0];
 
-                // send push notifications for significant actions
-                // compare latest action date with dbBill latest action date to determine if we need to send notifs
-                if (!dbBill || new Date(latestAction.actionDate) > new Date(dbBill.latestAction?.actionDate || 0)) {
-                    const significantText = ACTION_CODE_MAP[latestAction.actionCode];
-                    
-                    if (dbBill && significantText) {
-                        const usersToNotify = await User.find({
-                            savedBills: dbBill._id,
-                            expoPushTokens: { $exists: true, $ne: []}
-                        });
+            const actions = normalizeActions(resBillActions.data.actions);
+            const latestAction = actions.length ? actions[actions.length - 1] : {};
 
-                        const tokens = usersToNotify.flatMap(u => u.expoPushTokens).filter(Boolean);
-                        console.log("Tokens being sent:", tokens);
+            // send push notifications for significant actions
+            // compare latest action date with dbBill latest action date to determine if we need to send notifs
+            if (!dbBill || new Date(latestAction.actionDate) > new Date(dbBill.latestAction?.actionDate || 0)) {
+                const significantText = ACTION_CODE_MAP[latestAction.actionCode];
 
-                        if (tokens.length > 0) {
-                            await sendPushNotification(tokens, {
-                                title: `Update for ${b.title}`,
+                if (significantText) {
+                    const usersToNotify = dbBill ? await User.find({savedBills: dbBill._id}) : [];
+
+                    if (usersToNotify.length === 0) {
+                        console.log(`No users to notify for ${b.type.toUpperCase()} ${b.number}`);
+                        continue;
+                    } else {
+                        for (const user of usersToNotify) {
+                            // send push if they have tokens
+                            if (user.expoPushTokens?.length > 0) {
+                                await sendPushNotification(user.expoPushTokens, {
+                                    title: `Update for ${b.title}`,
+                                    body: significantText,
+                                    data: { billId: dbBill._id, latestActionCode: latestAction.actionCode }
+                                });
+                            }
+
+                            // add notification to inbox
+                            await addNotificationToInbox(user._id, {
+                                title: b.title,
                                 body: significantText,
-                                data: { billId: dbBill ? dbBill._id : null, latestActionCode: latestAction.actionCode }
+                                billId: dbBill._id
                             });
-                        }
+                        };
                     }
                 };
-                const status = normalizeBillStatus(actions, b.type);
-
-                // use regex to get meaningful summaries (second html element)
-                const summaryText = normalizeSummaries(latestSummary);
-
-                const lines = summaryText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-                const summary = lines.slice(1).join(" ").replace(/\s+/g, ' ').trim();
-                const shortSummary = extractShortSummary(summary);
-
-                await Bill.updateOne(
-                    { congress: b.congress, number: b.number, type: b.type },
-                    {
-                        $set: {
-                            title: b.title,
-                            originChamber: b.originChamber,
-                            updateDate: b.updateDate,
-                            latestAction,
-                            url: b.url,
-                            type: b.type,
-                            policyArea,
-                            summary,
-                            sponsors,
-                            cosponsors,
-                            actions,
-                            status,
-                            shortSummary,
-                        }
-                    },
-                    { upsert: true }
-                );
-            console.log(`Enriched ${b.type.toUpperCase()} ${b.number}`);
-            } catch (err) {
-                console.error(`Error enriching ${b.type}-${b.number}:`, err);
             }
+            const status = normalizeBillStatus(actions, b.type);
+
+            // use regex to get meaningful summaries (second html element)
+            const summaryText = normalizeSummaries(latestSummary);
+
+            const lines = summaryText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+            const summary = lines.slice(1).join(" ").replace(/\s+/g, ' ').trim();
+            const shortSummary = extractShortSummary(summary);
+
+            await Bill.updateOne(
+                { congress: b.congress, number: b.number, type: b.type },
+                {
+                    $set: {
+                        title: b.title,
+                        originChamber: b.originChamber,
+                        updateDate: b.updateDate,
+                        latestAction,
+                        url: b.url,
+                        type: b.type,
+                        policyArea,
+                        summary,
+                        sponsors,
+                        cosponsors,
+                        actions,
+                        status,
+                        shortSummary,
+                    }
+                },
+                { upsert: true }
+            );
+            console.log(`Enriched ${b.type.toUpperCase()} ${b.number}`);
+        } catch (err) {
+            console.error(`Error enriching ${b.type}-${b.number}:`, err);
         }
+    }
 };
 
 const normalizeSponsors = (sponsors) => {
@@ -172,14 +182,14 @@ const normalizeActions = (actions) => {
     }
 
     const normalizedActions = (actions || [])
-    .filter(a => a.actionCode && a.actionDate)
-    .map(a => ({
-        actionCode: a.actionCode,
-        actionDate: a.actionDate,
-        type: a.type,
-        text: a.text,
-    }))
-    .sort((a, b) => new Date(a.actionDate) - new Date(b.actionDate));
+        .filter(a => a.actionCode && a.actionDate)
+        .map(a => ({
+            actionCode: a.actionCode,
+            actionDate: a.actionDate,
+            type: a.type,
+            text: a.text,
+        }))
+        .sort((a, b) => new Date(a.actionDate) - new Date(b.actionDate));
 
     return normalizedActions;
 };
@@ -187,14 +197,14 @@ const normalizeActions = (actions) => {
 const normalizeSummaries = (summaryObj) => {
     if (!summaryObj) return "";
 
-    rawHtml = summaryObj.text || "";
+    let rawHtml = summaryObj.text || "";
     if (Array.isArray(rawHtml)) rawHtml = rawHtml.join(" ");
 
-    const htmlConvertOptions = { 
+    const htmlConvertOptions = {
         wordwrap: false,
         selectors: [
-            { selector: "a", options: { ignoreHref: true }},
-        ] 
+            { selector: "a", options: { ignoreHref: true } },
+        ]
     }
 
     return convert(rawHtml, htmlConvertOptions);

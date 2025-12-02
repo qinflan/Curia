@@ -51,6 +51,18 @@ const userSchema = new mongoose.Schema({
     type: [String],
     default: []
   },
+  inbox: [
+  {
+    _id: false, // don’t need Mongo to generate its own ObjectId for each notif
+    id: { type: String, required: true },   // uuid or billId+timestamp string
+    title: { type: String, required: true },
+    body: { type: String, required: true },
+
+    bill: { type: mongoose.Schema.Types.ObjectId, ref: "Bill", required: false },
+    createdAt: { type: Date, default: Date.now },
+    read: { type: Boolean, default: false }
+  }
+],
   createdAt: { 
     type: Date, 
     default: Date.now 

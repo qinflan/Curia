@@ -19,6 +19,8 @@ router.delete('/bill/unsave/:billId', authenticateAccessToken, UserController.un
 
 // push notifications
 router.post('/register-push-token', authenticateAccessToken, UserController.registerPushToken);
+router.get('/notifications', authenticateAccessToken, UserController.getNotifications);
+router.post('/notifications/mark-read/:notificationId', authenticateAccessToken, UserController.markNotificationRead);
 
 
 module.exports = router;

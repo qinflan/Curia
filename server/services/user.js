@@ -184,7 +184,7 @@ class UserService {
                 return res.status(404).json({ message: "User not found" });
             }
 
-            // Avoid duplicates
+            // avoid duplicates
             if (!user.expoPushTokens.includes(token)) {
                 user.expoPushTokens.push(token);
                 await user.save();
@@ -197,6 +197,65 @@ class UserService {
 
     }
 
+    async getNotifications(req, res) {
+        const userId = req.user.userId;
+        try {
+            const user = await User.findById(userId);
+            if (!user) {
+                return res.status(404).json({ message: "User not found" });
+            }
+            return res.status(200).json(
+                user.inbox.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+            );
+        } catch (error) {
+            return res.status(500).json({ message: 'Server error', error });
+        }
+    }
+
+    async markNotificationRead(req, res) {
+        const userId = req.user.userId;
+        const { notificationId } = req.params;
+        try {
+            const user = await User.findById(userId);
+            if (!user) {
+                return res.status(404).json({ message: "User not found" });
+            }
+            const notification = user.inbox.id(notificationId);
+            if (!notification) {
+                return res.status(404).json({ message: "Notification not found" });
+            } 
+            notification.read = true;
+
+            // clean up notifs older than two weeks that are read
+            const twoWeeks = 14 * 24 * 60 * 60 * 1000;
+            const now = Date.now();
+
+            user.inbox = user.inbox.filter(n => {
+                if (!n.read) return true;
+                const age = now - new Date(n.createdAt).getTime();
+                return age < twoWeeks;
+            });
+            await user.save();
+            return res.status(200).json({ message: "Notification marked as read" });
+        } catch (error) {
+            return res.status(500).json({ message: 'Server error', error });
+        }
+    }
+
+    async addNotificationToInbox(req, res) {
+        const userId = req.user.userId;
+        try {
+            const user = await User.findById(userId);
+            if (!user) {
+                console.error("User not found for notification:", userId);
+                return;
+            }
+            user.inbox.push(notification);
+            await user.save();
+        } catch (error) {
+            console.error("Error adding notification to inbox:", error);
+        }
+    }
 };
 
 
