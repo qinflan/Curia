@@ -86,7 +86,6 @@ const enrichBills = async (apiBills) => {
                     const usersToNotify = dbBill ? await User.find({savedBills: dbBill._id}) : [];
 
                     if (usersToNotify.length === 0) {
-                        console.log(`No users to notify for ${b.type.toUpperCase()} ${b.number}`);
                         continue;
                     } else {
                         for (const user of usersToNotify) {

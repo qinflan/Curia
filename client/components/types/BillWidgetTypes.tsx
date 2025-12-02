@@ -16,7 +16,6 @@ type Bill = {
     dislikes: number;
     republicanCount: number;
     democratCount: number;
-    url: string;
     status: {
         currentStatus: string;
         currentChamber: string;

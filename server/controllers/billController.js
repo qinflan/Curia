@@ -10,6 +10,10 @@ class BillController {
         return BillService.getSavedBills(req, res);
     }
 
+    async getBillById(req, res) {
+        return BillService.getBillById(req, res);
+    }
+
     async likeBill(req, res) {
         return BillService.likeBill(req, res);
     }

@@ -7,7 +7,7 @@ import {
   fetchStateReps
 } from "@/api/billsHandler";
 import { getUser } from "@/api/authHandler";
-import SavedBillWidget from "@/components/SavedBill";
+import SavedBillWidget from "@/components/SavedBillWidget";
 import { Bill } from "@/components/types/BillWidgetTypes";
 import SpinnerFallback from "@/components/SpinnerFallback";
 

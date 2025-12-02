@@ -23,7 +23,8 @@ function AppNavigator() {
     "updateLocation",
     "updateSignin",
     "updatePassword",
-    "inbox"
+    "inbox",
+    "savedBill"
   ];
   const setupRoute = "accountSetup";
 
