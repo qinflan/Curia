@@ -19,19 +19,46 @@ console.log("Bill enrichment module loaded");
 console.log("ACTION_CODE_MAP:", ACTION_CODE_MAP);
 
 const fetchRecentBills = async () => {
-    try {
-        const response = await axios.get(`${CONGRESS_BASE_URL}/bill`, {
-            params: {
-                api_key: API_KEY,
-                sort: "updateDate+desc",
-                limit: 250,
-            }
-        });
-        const bills = response.data.bills || [];
-        return bills;
-    } catch (error) {
-        console.error("Error fetching recent bills:", error);
+    const bills = [];
+    let offset = 0;
+    const limit = 250;
+    const maxBills = 1000; // temp for sandbox dev
+
+
+    const now = new Date();
+    const oneYearAgo = new Date();
+    oneYearAgo.setFullYear(now.getFullYear() - 1);
+
+    const fromDateTime = oneYearAgo.toISOString().split('T')[0] + 'T00:00:00Z';
+    const toDateTime = now.toISOString().split('T')[0] + 'T00:00:00Z';
+
+    while (bills.length < maxBills) {
+        try {
+            const response = await axios.get(`${CONGRESS_BASE_URL}/bill`, {
+                params: {
+                    api_key: API_KEY,
+                    sort: "updateDate+desc",
+                    limit,
+                    offset,
+                    fromDateTime,
+                    toDateTime
+                }
+            });
+            const pageBills = response.data.bills || [];
+            if (!pageBills.length) break;
+
+            bills.push(...pageBills);
+
+            // stop if fewer than limit (last page)
+            if (pageBills.length < limit) break;
+
+            offset += limit; // move to next page
+            console.log(offset, bills.length, 'bills fetched so far');
+        } catch (error) {
+            console.error("Error fetching recent bills:", error);
+        }
     }
+    return bills;
 };
 
 const enrichBills = async (apiBills) => {
@@ -49,21 +76,12 @@ const enrichBills = async (apiBills) => {
 
             const enrichBillBaseUrl = `${CONGRESS_BASE_URL}/bill/${b.congress}/${b.type.toLowerCase()}/${b.number}`;
 
-            const resBillDetails = await axios.get(enrichBillBaseUrl, {
-                params: { api_key: API_KEY }
-            });
-
-            const resBillCosponsors = await axios.get(`${enrichBillBaseUrl}/cosponsors`, {
-                params: { api_key: API_KEY, limit: 250 }
-            });
-
-            const resBillSummaries = await axios.get(`${enrichBillBaseUrl}/summaries`, {
-                params: { api_key: API_KEY, limit: 250 }
-            });
-
-            const resBillActions = await axios.get(`${enrichBillBaseUrl}/actions`, {
-                params: { api_key: API_KEY, limit: 250 },
-            });
+            const [resBillDetails, resBillCosponsors, resBillSummaries, resBillActions] = await Promise.all([
+                axios.get(enrichBillBaseUrl, { params: { api_key: API_KEY } }),
+                axios.get(`${enrichBillBaseUrl}/cosponsors`, { params: { api_key: API_KEY, limit: 250 } }),
+                axios.get(`${enrichBillBaseUrl}/summaries`, { params: { api_key: API_KEY, limit: 250 } }),
+                axios.get(`${enrichBillBaseUrl}/actions`, { params: { api_key: API_KEY, limit: 250 } }),
+            ]);
 
             const detailed = resBillDetails.data.bill;
             const policyArea = detailed.policyArea?.name || null;
@@ -83,7 +101,7 @@ const enrichBills = async (apiBills) => {
                 const significantText = ACTION_CODE_MAP[latestAction.actionCode];
 
                 if (significantText) {
-                    const usersToNotify = dbBill ? await User.find({savedBills: dbBill._id}) : [];
+                    const usersToNotify = dbBill ? await User.find({ savedBills: dbBill._id }) : [];
 
                     if (usersToNotify.length === 0) {
                         continue;

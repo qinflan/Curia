@@ -9,10 +9,10 @@ router.put('/:billId/unlike', authenticateAccessToken, BillController.unlikeBill
 router.put('/:billId/undislike', authenticateAccessToken, BillController.undislikeBill);
 router.put('/:billId/dislike', authenticateAccessToken, BillController.dislikeBill);
 router.get('/saved', authenticateAccessToken, BillController.getSavedBills);
-router.get('/:billId', authenticateAccessToken, BillController.getBillById);
 router.get('/trending', authenticateAccessToken, BillController.getTrendingBills);
 router.get('/reps/:state', authenticateAccessToken, BillController.getStateReps);
 router.get('/rep/:bioguideId', authenticateAccessToken, BillController.getBillsByStateRep);
 router.get('/search', authenticateAccessToken, BillController.searchBills);
+router.get('/:billId', authenticateAccessToken, BillController.getBillById);
 
 module.exports = router;
