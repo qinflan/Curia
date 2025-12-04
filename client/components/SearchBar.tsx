@@ -8,7 +8,7 @@ type SearchBarProps = {
     onSearch?: (results: Bill[], keyword: string) => void;
 };
 
-const SearchBar: React.FC<SearchBarProps> = ( { onSearch }) => {
+const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
     const [keywords, setKeywords] = useState<string>("");
 
     const handleSearchBills = async () => {
@@ -17,6 +17,12 @@ const SearchBar: React.FC<SearchBarProps> = ( { onSearch }) => {
             onSearch?.(bills, keywords)
         } catch (err) {
             console.error("bill search error: ", err)
+        }
+    }
+
+    const handleClearSearch = async () => {
+        if (keywords.length > 0) {
+            setKeywords("")
         }
     }
 
