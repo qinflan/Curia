@@ -1,31 +1,14 @@
 import { Text, View, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import { useState } from 'react';
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import BackButton from "@/components/BackButton";
 
 export default function Faq() {
   const router = useRouter();
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
-  // NOTE this data should ideally be a json file and not inside the react component
+  // NOTE this data should ideally be in a separate file and not inside the react component
   const faqData = [
-    {
-      question: 'What is Curia?',
-      answer: 'Curia is a mobile app that helps U.S. citizens stay informed about congressional bills as they move through Congress and become laws.'
-    },
-    {
-      question: 'How do I create an account?',
-      answer: 'You can sign up using your email or social media accounts directly through the Curia app.'
-    },
-    {
-      question: 'Is Curia available internationally?',
-      answer: 'Yes! Curia offers connectivity and support for users across multiple countries.'
-    },
-    {
-      question: 'What is Curia?',
-      answer: 'Curia is a mobile app that helps U.S. citizens stay informed about congressional bills as they move through Congress and become laws.'
-    },
     {
       question: 'How does Curia get its information?',
       answer: 'Curia uses data directly from the official U.S. Congress database and API to ensure all information is accurate, up-to-date, and non-partisan.'
@@ -51,24 +34,12 @@ export default function Faq() {
       answer: 'When you follow a bill or policy category, you’ll receive in-app updates and optional notifications whenever there’s progress or changes.'
     },
     {
-      question: 'Do I need to create an account to use Curia?',
-      answer: 'You can explore general bill information without an account, but creating one allows you to follow specific bills and receive personalized updates.'
-    },
-    {
       question: 'Is Curia free to use?',
       answer: 'Yes. Curia is completely free and uses publicly available congressional data to keep citizens informed.'
     },
     {
       question: 'How can I contact Curia support?',
       answer: 'You can reach our support team through the “Help & Support” section in the app settings or email us at support@curiaapp.com.'
-    },
-    {
-      question: 'Is Curia available internationally?',
-      answer: 'Yes! Curia offers connectivity and support for users across multiple countries.'
-    },
-    {
-      question: 'How can I contact support?',
-      answer: 'You can reach our support team via the “Help & Support” section in the app settings.'
     },
     {
       question: 'How can I contact support?',
@@ -82,15 +53,13 @@ export default function Faq() {
 
 
   return (
-
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+      <ScrollView contentContainerStyle={{ padding: 24 }} showsVerticalScrollIndicator={false}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back-circle-outline" size={40} color="#333" />
-        </TouchableOpacity>
+          <BackButton/>
         <Text style={styles.headerText}>Frequently Asked Questions</Text>
       </View>
-      <ScrollView style={styles.container}>
+
+        <View style={styles.faqItemContainer}>
 
         {faqData.map((item, index) => (
 
@@ -105,9 +74,9 @@ export default function Faq() {
           </View>
 
         ))}
+        </View>
 
       </ScrollView>
-    </SafeAreaView>
 
   );
 
@@ -115,41 +84,42 @@ export default function Faq() {
 
 
 const styles = StyleSheet.create({
-
   container: {
-    marginVertical: 50,
     flex: 1,
     backgroundColor: '#fff',
     paddingHorizontal: 20,
-    paddingTop: 10,
   },
 
   header: {
     flexDirection: 'row',
-    justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 20,
     gap: 12,
   },
 
   headerText: {
+    fontSize: 20,
+    textAlign: "center",
     fontFamily: "InterSemiBold",
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#333',
+    letterSpacing: -0.5
+  },
+
+  faqItemContainer: {
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    padding: 20,
+    marginTop: 20,
   },
 
   faqItem: {
-    marginBottom: 15,
+    width: "100%",
+    paddingVertical: 14,
     borderBottomWidth: 1,
     borderColor: '#ddd',
-    paddingBottom: 10,
   },
 
   question: {
     fontFamily: "InterSemiBold",
     fontSize: 16,
-    fontWeight: '600',
     color: '#222',
   },
 
@@ -160,9 +130,5 @@ const styles = StyleSheet.create({
     marginTop: 8,
     lineHeight: 20,
   },
-
-  backButton: {
-  }
-
 });
 

@@ -12,6 +12,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 import { useRouter } from "expo-router";
+import BackButton from "@/components/BackButton";
 
 import { useAuth } from "@/hooks/AuthContext";
 
@@ -44,11 +45,10 @@ export default function UpdatePassword() {
     };
 
     return (
-        <SafeAreaView style={{ flex: 1 }}>
             <ScrollView contentContainerStyle={{ padding: 24 }} showsVerticalScrollIndicator={false}>
 
                 <View style={styles.header}>
-                    <Ionicons name="arrow-back-circle" size={32} color="black" style={styles.backButton} onPress={() => router.back()} />
+                    <BackButton/>
                     <Text style={styles.title}>Change Password</Text>
                 </View>
 
@@ -88,7 +88,6 @@ export default function UpdatePassword() {
                     </BlurView>
                 </TouchableOpacity>
             </ScrollView>
-        </SafeAreaView>
     );
 }
 
@@ -99,26 +98,16 @@ const styles = StyleSheet.create({
     },
     header: {
         width: "100%",
+        gap: 12,
         flexDirection: "row",
         alignItems: "center",
-        justifyContent: "center",
         marginBottom: 40,
         position: "relative",
     },
     title: {
         fontSize: 20,
-        fontWeight: "600",
-        textAlign: "center",
         fontFamily: "InterSemiBold",
-        letterSpacing: -0.6
-    },
-    subHeader: {
-        fontFamily: "InterRegular",
-        fontSize: 14,
-        color: "black",
-        textAlign: "center",
-        marginBottom: 20,
-        letterSpacing: -0.2
+        letterSpacing: -0.5
     },
     inputContainer: {
         overflow: "hidden",

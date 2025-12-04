@@ -9,7 +9,8 @@ import {
   ScrollView,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import BackButton from "@/components/BackButton";
 import { useRouter } from "expo-router";
 
 import { useAuth } from "@/hooks/AuthContext";
@@ -37,14 +38,13 @@ export default function UpdateSignin() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <ScrollView contentContainerStyle={{ padding: 24, paddingTop: 28 }} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={{ padding: 24}} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <Ionicons name="arrow-back-circle" size={32} color="black" style={styles.backButton} onPress={() => router.back()}/>
+          <BackButton/>
             <Text style={styles.title}>Sign-in Settings</Text>
         </View>
 
-        <View style={{ marginBottom: 15 }}>
+        <View style={{ marginBottom: 12 }}>
           <Text style={styles.subHeader}>Email</Text>
           {editingEmail ? (
             <View style={styles.inputContainer}>
@@ -81,20 +81,15 @@ export default function UpdateSignin() {
           </TouchableOpacity>
         </View>
       </ScrollView>
-    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-    backButton: {
-        position: "absolute",
-        left: 0
-    },
     header: {
         width: "100%",
+        gap: 12,
         flexDirection: "row",
         alignItems: "center",
-        justifyContent: "center",
         marginBottom: 5,
         position: "relative",
     },
@@ -109,12 +104,13 @@ const styles = StyleSheet.create({
         fontFamily: "InterRegular",
         fontSize: 14,
         color: "black",
-        textAlign: "center",
-        marginBottom: 20,
-        letterSpacing: -0.2
+        marginBottom: 8,
+        marginTop: 40,
+        letterSpacing: -0.3
     },
   inputContainer: {
     overflow: "hidden",
+    gap: 12,
   },
   input: {
     backgroundColor: "white",
@@ -124,6 +120,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 10,
     borderRadius: 14,
+    letterSpacing: -0.2,
+    width: "100%"
   },
   saveButton: {
     backgroundColor: "black",

@@ -7,10 +7,10 @@ import {
     StyleSheet,
     Alert,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useAuth } from "@/hooks/AuthContext";
 import { FED_POLICY_AREAS } from "./enums/BillsEnums";
+import BackButton from "@/components/BackButton";
 
 export default function UpdateInterests() {
     const router = useRouter();
@@ -45,20 +45,13 @@ export default function UpdateInterests() {
 
     return (
         <ScrollView
-            contentContainerStyle={{ padding: 24, paddingTop: 10 }}
+            contentContainerStyle={{ padding: 24 }}
             showsVerticalScrollIndicator={false}
         >
             <View style={styles.header}>
-                    <Ionicons 
-                        name="arrow-back-circle" 
-                        size={32} 
-                        color="black" 
-                        style={styles.backButton} 
-                        onPress={() => router.back()} 
-                    />
-                <Text style={styles.title}>Update Policy Interest</Text>
+                <BackButton/>
+                <Text style={styles.title}>Update Policy Interests</Text>
             </View>
-            <Text style={styles.subHeader}>Select up to 5 interests</Text>
 
             <View style={styles.interestContainer}>
                 {FED_POLICY_AREAS.map((area) => {
@@ -89,34 +82,22 @@ export default function UpdateInterests() {
 }
 
 const styles = StyleSheet.create({
-    backButton: {
-        position: "absolute",
-        left: 0
-    },
     header: {
         width: "100%",
+        gap: 12,
         flexDirection: "row",
         alignItems: "center",
-        justifyContent: "center",
-        marginBottom: 5,
+        marginBottom: 25,
         position: "relative",
     },
     title: {
         fontSize: 20,
-        fontWeight: "600",
-        textAlign: "center"
-    },
-    subHeader: {
-        fontFamily: "InterRegular",
-        fontSize: 14,
-        color: "black",
-        textAlign: "center",
-        marginBottom: 20
+        fontFamily: "InterSemiBold",
+        letterSpacing: -0.5,
     },
     interestContainer: {
         flexDirection: "row",
         flexWrap: "wrap",
-        justifyContent: "center",
         gap: 10,
         marginBottom: 40,
     },
@@ -133,6 +114,7 @@ const styles = StyleSheet.create({
         color: "#000",
         fontFamily: "InterRegular",
         fontSize: 14,
+        letterSpacing: -0.4,
         textAlign: "center",
     },
     selectedText: {

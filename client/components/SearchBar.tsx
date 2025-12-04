@@ -28,30 +28,20 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
 
     return (
         <View style={styles.searchBarContainer}>
+            <TouchableOpacity style={styles.searchBtn} onPress={handleSearchBills}>
+                <Ionicons 
+                    name="search"
+                    size={14} 
+                    color="black"
+                />
+            </TouchableOpacity>
             <TextInput
                 style={styles.textInput}
                 onChangeText={setKeywords}
                 value={keywords}
                 placeholder="search bills"
-                returnKeyType="search"
                 onSubmitEditing={handleSearchBills}
             />
-            {keywords.length === 0 ?
-                (<TouchableOpacity style={styles.searchBtn} onPress={handleSearchBills}>
-                    <Ionicons
-                        name="search"
-                        size={14}
-                        color="white"
-                    />
-                </TouchableOpacity>) :
-            (<TouchableOpacity style={styles.searchBtn} onPress={handleClearSearch}>
-                <Ionicons
-                    name="close"
-                    size={14}
-                    color="white"
-                />
-            </TouchableOpacity>)
-}
         </View>
     )
 }
@@ -59,28 +49,26 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
 const styles = StyleSheet.create({
     searchBarContainer: {
         flex: 1,
+        backgroundColor: "white",
         flexDirection: "row",
         alignItems: "center",
-        backgroundColor: "white",
-        borderRadius: 60,
+        borderRadius: 14,
         width: "90%",
         paddingHorizontal: 6,
-        paddingVertical: 4,
-        marginBottom: 30, // temp
+        marginBottom: 30,
     },
     textInput: {
         flex: 1,
-        backgroundColor: "white",
-        borderRadius: 50,
+        padding: 8,
+        borderRadius: 12,
         fontFamily: 'InterSemiBold',
         letterSpacing: -0.4,
-        marginLeft: 8,
-        fontSize: 12
+        fontSize: 14
     },
     searchBtn: {
-        backgroundColor: "#000000ff",
-        borderRadius: 100,
-        padding: 6,
+        paddingHorizontal: 8,
+        backgroundColor: '#fff',
+        borderRadius: 14,
         marginLeft: "auto"
     }
 })

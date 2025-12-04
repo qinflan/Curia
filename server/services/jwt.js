@@ -5,7 +5,7 @@ const bcrypt = require("bcrypt")
 class JWT {
 
     generateAccessToken(payload) {
-        return jwt.sign(payload, process.env.JWT_ACCESS_SECRET, { expiresIn: "15m" });
+        return jwt.sign(payload, process.env.JWT_ACCESS_SECRET, { expiresIn: "1m" });
     }
 
     generateRefreshToken(payload) {

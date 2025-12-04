@@ -116,7 +116,7 @@ const SavedBillScreen: React.FC = () => {
                 )}
             </View>
                 {bill.document ? (
-                    <TouchableOpacity onPress={() => openInAppBrowser(bill.document)} style={[styles.cardContainer, {borderWidth: 1, borderColor: '#000000c9'}]}>
+                    <TouchableOpacity onPress={() => openInAppBrowser(bill.document)} style={styles.cardContainer}>
                         <Text style={styles.link}>View Full Document</Text>
                     </TouchableOpacity>
                 ) : (
