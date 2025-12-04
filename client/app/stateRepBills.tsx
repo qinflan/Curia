@@ -6,6 +6,7 @@ import { fetchBillsByRep } from "@/api/billsHandler";
 import { getUser } from "@/api/authHandler";
 import { Ionicons } from "@expo/vector-icons"
 import SpinnerFallback from "@/components/SpinnerFallback";
+import BackButton from "@/components/BackButton";
 
 export default function StateRepBills() {
     const { repId, firstName, lastName } = useLocalSearchParams<{ repId: string; firstName: string; lastName: string }>();
@@ -46,7 +47,7 @@ export default function StateRepBills() {
     return (
         <ScrollView contentContainerStyle={styles.container}>
             <View style={styles.header}>
-                <Ionicons name="arrow-back-circle" style={styles.backButton} size={32} onPress={() => router.back()}/>
+                <BackButton/>
                 <Text style={styles.title}>{formatName(firstName, lastName)}&apos;s Bill Report</Text>
             </View>
             {bills.length > 0 ? (
@@ -70,9 +71,9 @@ const styles = StyleSheet.create({
     },
     header: {
         width: "100%",
+        gap: 12,
         flexDirection: "row",
         alignItems: "center",
-        justifyContent: "center",
         marginBottom: 22,
         position: "relative",
     },
@@ -82,8 +83,8 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 20,
-        fontWeight: "600",
-        textAlign: "center"
+        fontFamily: "InterSemiBold",
+        letterSpacing: -0.5,
     },
     noBillsText: {
         fontSize: 14,

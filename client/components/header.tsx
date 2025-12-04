@@ -1,22 +1,22 @@
+import { useState } from "react";
 import { View, TouchableOpacity, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Logo from "../assets/images/logo-light.svg";
 import Ionicons from "@expo/vector-icons/Ionicons";
-
-
+import { useRouter } from "expo-router";
 
 export default function Header() {
-
+  const router = useRouter();
 
   return (
-    <SafeAreaView edges={["top"]} style={styles.safeArea}>
-      <View style={styles.container}>
-        <Logo width={68} height={68} style={styles.logo} />
-        <TouchableOpacity style={styles.bellIcon} onPress={() => {}}>
-          <Ionicons name="notifications-outline" size={22} color="black" />
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
+      <SafeAreaView edges={["top"]} style={styles.safeArea}>
+        <View style={styles.container}>
+          <Logo width={68} height={68} style={styles.logo} />
+          <TouchableOpacity style={styles.bellIcon} onPress={() => router.push('/inbox')}>
+            <Ionicons name="notifications-outline" size={22} color="black" />
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
   );
 }
 

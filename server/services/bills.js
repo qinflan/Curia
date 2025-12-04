@@ -48,6 +48,27 @@ class BillService {
         }
     }
 
+    async getBillById(req, res) {
+        try {
+            const { billId } = req.params;
+            if (!billId) {
+                return res.status(400).json({ message: "billId is required" });
+            }
+
+            const pipeline = buildBillAggregation([
+                { $match: { _id: new mongoose.Types.ObjectId(billId) } }
+            ]);
+            const bills = await Bill.aggregate(pipeline);
+            if (bills.length === 0) {
+                return res.status(404).json({ message: "Bill not found" });
+            }
+            res.status(200).json(bills[0]);
+
+        } catch (error) {
+            return res.status(500).json({ message: 'Server error', error });
+        }
+    }
+
     async likeBill(req, res) {
         const userId = req.user.userId;
         const { billId } = req.params;
@@ -202,7 +223,12 @@ class BillService {
     async getTrendingBills(req, res) {
         try {
             const pipeline = buildBillAggregation([
-                { $sort: { likes: -1 } },
+                {
+                $addFields: {
+                    engagement: { $add: ["$likes", "$dislikes"] }
+                }
+            },
+                { $sort: { engagement: -1 } },
                 { $limit: 100 }
             ]);
 

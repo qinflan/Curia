@@ -11,12 +11,12 @@ type Bill = {
     policyArea: string;
     summary: string;
     shortSummary: string;
+    document: string;
     originChamber: string;
     likes: number;
     dislikes: number;
     republicanCount: number;
     democratCount: number;
-    url: string;
     status: {
         currentStatus: string;
         currentChamber: string;

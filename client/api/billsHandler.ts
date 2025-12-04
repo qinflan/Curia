@@ -18,6 +18,16 @@ export const fetchSavedBills = async () => {
     return response.data;
 }
 
+export const fetchBillById = async (billId: string) => {
+    const accessToken = await getToken("access_token");
+    if (!accessToken) throw new Error("No access token stored.");
+
+    const response = await axios.get(`${API_BASE_URL}/bills/${billId}`, {
+        headers: { Authorization: `Bearer ${accessToken}` }
+    });
+    return response.data;
+}
+
 export const saveBill = async (billId: string) => {
     const accessToken = await getToken("access_token");
     if (!accessToken) throw new Error("No access token stored.");   

@@ -13,5 +13,6 @@ router.get('/trending', authenticateAccessToken, BillController.getTrendingBills
 router.get('/reps/:state', authenticateAccessToken, BillController.getStateReps);
 router.get('/rep/:bioguideId', authenticateAccessToken, BillController.getBillsByStateRep);
 router.get('/search', authenticateAccessToken, BillController.searchBills);
+router.get('/:billId', authenticateAccessToken, BillController.getBillById);
 
 module.exports = router;

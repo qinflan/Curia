@@ -8,10 +8,12 @@ const billSchema = new mongoose.Schema({
   originChamber: String,
   updateDate: String,
   latestAction: {
-    actionDate: String,
-    text: String
+    actionCode: { type: String, default: null },
+    actionDate: { type: String, default: null },
+    text: { type: String, default: null },
+    type: { type: String, default: null },
   },
-  url: String,
+  document: String,
   policyArea: String,
   shortSummary: {type: String, default: ""},
   summary: String,
@@ -31,10 +33,12 @@ const billSchema = new mongoose.Schema({
     sponsorshipDate: String,
   }],
   actions: [{
+    actionCode: {type: String, default: null},
     actionDate: {type: String, default: null},
     text: {type: String, default: null},
     type: {type: String, default: null},
   }],
+  // refactor status normalization to use action code mapping
   status: {
     currentChamber: String,
     currentStatus: String,
@@ -46,7 +50,6 @@ const billSchema = new mongoose.Schema({
     becameLaw: Boolean,
     vetoed: Boolean,
   },
-  enriched: { type: Boolean, default: false }, // flag additional bill data pull from api for filtering
 
   // metrics
   likes: { type: Number, default: 0 },

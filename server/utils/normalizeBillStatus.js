@@ -1,3 +1,5 @@
+const { ACTION_CODE_MAP } = require('../scripts/constants');
+
 /**
  * derives a bill's timeline and current status from its recent actions
  * @param {Array<{actionDate: string, text: string}>} actions - the most recent actions for a bill
@@ -29,48 +31,24 @@ function normalizeBillStatus(actions = [], billType = "") {
       ? "Senate"
       : "House";
 
-  for (const { actionDate, text, type } of sorted) {
-    const lower = text.toLowerCase();
+  for (const { actionDate, actionCode } of sorted) {
+    if (!actionCode) continue;
+
+    const mappedStatus = ACTION_CODE_MAP[actionCode];
+    if (!mappedStatus) continue;
+
     let chamber = currentChamber;
-    if (lower.includes("senate")) chamber = "Senate";
-    else if (lower.includes("house")) chamber = "House";
-
-    let status = "Other";
-
-    // detect primary statuses
-    if (lower.includes("introduced")) status = "Introduced";
-    else if (lower.includes("committee")) status = "In Committee";
-    else if (lower.includes("markup") || lower.includes("mark-up"))
-      status = "Committee Markup";
-    else if (lower.includes("reported")) status = "Reported by Committee";
-    else if (lower.includes("passed/agreed") || lower.includes("passed"))
-      status = `Passed ${chamber}`;
-    else if (lower.includes("received in the senate"))
-      status = "Received in Senate";
-    else if (lower.includes("received in the house"))
-      status = "Received in House";
-    else if (lower.includes("veto")) status = "Vetoed";
-    else if (lower.includes("signed by president")) status = "Signed by President";
-    else if (lower.includes("became law")) status = "Became Law";
-    else if (lower.includes("referred")) status = "Referred";
-
-    // fallback by type
-    if (status === "Other") {
-      if (type === "IntroReferral") status = "Introduced";
-      else if (type === "Committee") status = "In Committee";
-      else if (type === "Floor") status = "Floor Action";
-      else if (type === "Calendars") status = "On Calendar";
-      else if (type === "BecameLaw") status = "Became Law";
-    }
+    if (mappedStatus.includes("senate")) chamber = "Senate";
+    else if (mappedStatus.includes("house")) chamber = "House";
 
     // prevent deuplicate timeline entries since actions can be repetitive
     if (
       !timeline.some(
-        (t) => t.chamber === chamber && t.status === status && t.date === actionDate
+        (t) => t.chamber === chamber && t.status === mappedStatus && t.date === actionDate
       )
     ) {
-      timeline.push({ date: actionDate, chamber, status });
-      currentStatus = status;
+      timeline.push({ date: actionDate, chamber, status: mappedStatus });
+      currentStatus = mappedStatus;
       currentChamber = chamber;
     }
   }
@@ -81,16 +59,16 @@ function normalizeBillStatus(actions = [], billType = "") {
     const hasSenatePass = timeline.some((a) => a.status === "Passed Senate");
     const becameLaw = timeline.some((a) => a.status === "Became Law");
     const vetoed = timeline.some((a) => a.status === "Vetoed");
+    
+    let statusText = currentStatus;
 
     if (becameLaw) return "Enacted (Became Law)";
     if (vetoed) return "Vetoed by President";
     if (hasHousePass && hasSenatePass) return "Passed Both Chambers";
     if (hasHousePass && currentChamber === "Senate") return "Awaiting Senate Action";
     if (hasSenatePass && currentChamber === "House") return "Awaiting House Action";
-    if (currentStatus.startsWith("Passed")) return currentStatus;
-    if (timeline.at(-1)?.status === "Introduced") return "Introduced";
 
-    return currentStatus;
+    return statusText;
   })();
 
   return {

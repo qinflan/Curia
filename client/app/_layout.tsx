@@ -23,6 +23,8 @@ function AppNavigator() {
     "updateLocation",
     "updateSignin",
     "updatePassword",
+    "inbox",
+    "savedBill"
   ];
   const setupRoute = "accountSetup";
 
@@ -64,6 +66,7 @@ function AppNavigator() {
         <Stack.Screen name="updateLocation" />
         <Stack.Screen name="updateSignin" />
         <Stack.Screen name="updatePassword" />
+        <Stack.Screen name="inbox" />
       </Stack>
       {showNavbar && <Navbar />}
       </View>

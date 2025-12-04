@@ -15,6 +15,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import {FED_POLICY_AREAS} from "./enums/BillsEnums"; 
 import { useAuth } from "@/hooks/AuthContext";
 import { useRouter } from "expo-router";
+import { getPushToken, registerPushToken } from "@/api/notificationHandler";
+import * as Device from 'expo-device';
 
 export default function AccountSetup() {
   const router = useRouter();
@@ -92,6 +94,20 @@ export default function AccountSetup() {
         interests: form.interests,
       },
     });
+
+    // can only get push token on mobile device
+    if (Device.isDevice) {
+      const token = await getPushToken();
+      if (token) {
+        try {
+          await registerPushToken(token);
+          console.log("Push token registered:", token);
+        } catch (err) {
+          console.error("Failed to register push token:", err);
+        }
+      }
+    };
+
     } catch (err) {
       Alert.alert("Error", "Failed to complete account setup. Please try again.");
       return;
