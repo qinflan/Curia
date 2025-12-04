@@ -13,7 +13,7 @@ const billSchema = new mongoose.Schema({
     text: { type: String, default: null },
     type: { type: String, default: null },
   },
-  url: String,
+  document: String,
   policyArea: String,
   shortSummary: {type: String, default: ""},
   summary: String,

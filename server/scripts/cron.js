@@ -2,7 +2,7 @@ const cron = require('node-cron');
 const { fetchRecentBills, enrichBills } = require('./seedBills');
 
 // cron job for polling congres.gov api and fetching/updating bills
-cron.schedule('*/15 * * * *', async () => {
+cron.schedule('*/60 * * * *', async () => {
     console.log(`[${new Date().toISOString()}] Running dev bill polling cron...`);
 
     try {

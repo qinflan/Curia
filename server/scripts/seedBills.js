@@ -2,7 +2,7 @@ const Bill = require("../models/bill");
 const User = require("../models/user");
 const axios = require("axios");
 const dotenv = require("dotenv");
-const { convert } = require('html-to-text')
+const { parse }  = require("node-html-parser")
 
 const normalizeBillStatus = require("../utils/normalizeBillStatus");
 const { sendPushNotification } = require('../services/pushNotification');
@@ -22,7 +22,7 @@ const fetchRecentBills = async () => {
     const bills = [];
     let offset = 0;
     const limit = 250;
-    const maxBills = 1000; // temp for sandbox dev
+    const maxBills = 1000; // temp for sandbox dev, we will tweak this after backend is done
 
 
     const now = new Date();
@@ -76,11 +76,12 @@ const enrichBills = async (apiBills) => {
 
             const enrichBillBaseUrl = `${CONGRESS_BASE_URL}/bill/${b.congress}/${b.type.toLowerCase()}/${b.number}`;
 
-            const [resBillDetails, resBillCosponsors, resBillSummaries, resBillActions] = await Promise.all([
+            const [resBillDetails, resBillCosponsors, resBillSummaries, resBillActions, resBillTexts] = await Promise.all([
                 axios.get(enrichBillBaseUrl, { params: { api_key: API_KEY } }),
                 axios.get(`${enrichBillBaseUrl}/cosponsors`, { params: { api_key: API_KEY, limit: 250 } }),
                 axios.get(`${enrichBillBaseUrl}/summaries`, { params: { api_key: API_KEY, limit: 250 } }),
                 axios.get(`${enrichBillBaseUrl}/actions`, { params: { api_key: API_KEY, limit: 250 } }),
+                axios.get(`${enrichBillBaseUrl}/text`, { params: { api_key: API_KEY, limit: 250 } }),
             ]);
 
             const detailed = resBillDetails.data.bill;
@@ -94,6 +95,15 @@ const enrichBills = async (apiBills) => {
 
             const actions = normalizeActions(resBillActions.data.actions);
             const latestAction = actions.length ? actions[actions.length - 1] : {};
+
+            let pdfTextUrl = null;
+            for (const version of resBillTexts.data.textVersions) {
+                const pdf = version.formats.find(f => f.type === "PDF");
+                if (pdf) {
+                    pdfTextUrl = pdf.url;
+                    break;
+                }
+            }
 
             // send push notifications for significant actions
             // compare latest action date with dbBill latest action date to determine if we need to send notifs
@@ -129,11 +139,7 @@ const enrichBills = async (apiBills) => {
             const status = normalizeBillStatus(actions, b.type);
 
             // use regex to get meaningful summaries (second html element)
-            const summaryText = normalizeSummaries(latestSummary);
-
-            const lines = summaryText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-            const summary = lines.slice(1).join(" ").replace(/\s+/g, ' ').trim();
-            const shortSummary = extractShortSummary(summary);
+            const {shortSummary, summary } = normalizeSummaries(latestSummary);
 
             await Bill.updateOne(
                 { congress: b.congress, number: b.number, type: b.type },
@@ -143,7 +149,7 @@ const enrichBills = async (apiBills) => {
                         originChamber: b.originChamber,
                         updateDate: b.updateDate,
                         latestAction,
-                        url: b.url,
+                        document: pdfTextUrl,
                         type: b.type,
                         policyArea,
                         summary,
@@ -211,38 +217,27 @@ const normalizeActions = (actions) => {
     return normalizedActions;
 };
 
+// api returns summaries as HTML blobs that maintain a consistent structure; we need to extract the meaningful text
 const normalizeSummaries = (summaryObj) => {
-    if (!summaryObj) return "";
+    if (!summaryObj) return { shortSummary: "", summary: ""};
 
     let rawHtml = summaryObj.text || "";
     if (Array.isArray(rawHtml)) rawHtml = rawHtml.join(" ");
 
-    const htmlConvertOptions = {
-        wordwrap: false,
-        selectors: [
-            { selector: "a", options: { ignoreHref: true } },
-        ]
+    const root = parse(rawHtml);
+    const nodes = root.querySelectorAll("p, li");
+    const texts = nodes.map(n => n.text.trim()).filter(Boolean);
+
+    if (texts.length === 0) {
+        return { shortSummary: "", summary: "" };
     }
-
-    return convert(rawHtml, htmlConvertOptions);
-}
-
-// gross regex that just works
-const extractShortSummary = (text, maxLength = 300) => {
-    if (!text) return "";
-
-    let cleanText = text.replace(/\s+/g, " ").trim();
-
-    cleanText = cleanText.replace(/^\(?(sec(tion)?\.?\s*\d+[a-zA-Z]?\)?)/i, "").trim();
-
-    const sentenceMatch = cleanText.match(/.*?[.!?](?:\s|$)/);
-    let shortSummary = sentenceMatch ? sentenceMatch[0].trim() : cleanText;
-
-    if (shortSummary.length > maxLength) {
-        shortSummary = shortSummary.slice(0, maxLength).trim() + "...";
-    }
-
-    return shortSummary;
+    const shortSummary = texts[1] || "";
+    const summary = texts
+        .slice(1)                            
+        .join(" ")
+        .replace(/\s+/g, " ")
+        .trim();
+    return { shortSummary, summary };
 };
 
 module.exports = {

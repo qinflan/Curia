@@ -209,9 +209,9 @@ const styles = StyleSheet.create({
 
     title: {
         fontSize: 14,
-        fontWeight: 'bold',
         marginBottom: 6,
-        fontFamily: "InterBold",
+        fontFamily: "InterSemiBold",
+        letterSpacing: -0.5
     },
 
     subheader: {
@@ -219,7 +219,7 @@ const styles = StyleSheet.create({
         fontFamily: 'InterSemiBold',
         marginBottom: 12,
         color: "#000000d4",
-        letterSpacing: -0.2
+        letterSpacing: -0.5
     },
 
     caption: {

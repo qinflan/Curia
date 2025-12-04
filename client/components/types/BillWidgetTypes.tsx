@@ -11,6 +11,7 @@ type Bill = {
     policyArea: string;
     summary: string;
     shortSummary: string;
+    document: string;
     originChamber: string;
     likes: number;
     dislikes: number;

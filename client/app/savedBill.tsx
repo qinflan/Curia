@@ -1,16 +1,16 @@
 import React, { useState, useEffect, useMemo } from 'react'
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Linking } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Linking, Dimensions } from 'react-native'
 import { VerticalStatusProgress } from 'react-native-vertical-status-progress';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import type { Bill } from '@/components/types/BillWidgetTypes'
 import { fetchBillById } from '@/api/billsHandler';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import SpinnerFallback from '@/components/SpinnerFallback';
+import BackButton from '@/components/BackButton';
 
-
+import * as WebBrowser from 'expo-web-browser';
 
 const SavedBillScreen: React.FC = () => {
-    const router = useRouter();
     const { id } = useLocalSearchParams<{ id: string }>();
     const [bill, setBill] = useState<Bill | null>(null);
     const [loading, setLoading] = useState(true);
@@ -62,25 +62,24 @@ const SavedBillScreen: React.FC = () => {
     const repPercent = totalSponsors > 0 ? bill.republicanCount / totalSponsors : 0;
     const demPercent = totalSponsors > 0 ? bill.democratCount / totalSponsors : 0;
 
-    //   const openBillUrl = () => {
-    //     if (!bill.urls?.congress) return;
-    //     Linking.openURL(bill.urls.congress);
-    //   };
+    const openInAppBrowser = async (url: string) => {
+        await WebBrowser.openBrowserAsync(url);
+    };
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
-            <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-                <Ionicons name="arrow-back" size={24} color="black" />
-            </TouchableOpacity>
-            <Text style={styles.title}>{bill.title}</Text>
-            <Text style={styles.subheader}>{bill.policyArea}</Text>
+            <View style={styles.header}>
+                <BackButton/>
+                <View style={{ flexDirection: 'column' }}>
+                    <Text style={styles.title}>{bill.title}</Text>
+                    <Text style={styles.subheader}>{bill.policyArea}</Text>
+                </View>
+            </View>
 
             <View style={styles.cardContainer}>
                 <Text style={styles.sectionHeader}>Summary</Text>
                 {bill.shortSummary && <Text style={styles.summary}>{bill.shortSummary}</Text>}
             </View>
-            {/* {bill.longSummary && <Text style={styles.summary}>{bill.longSummary}</Text>} */}
-            
 
             <View style={styles.cardContainer}>
                 <Text style={styles.sectionHeader}>Partisan Breakdown</Text>
@@ -116,32 +115,77 @@ const SavedBillScreen: React.FC = () => {
                     <Text>No timeline data available</Text>
                 )}
             </View>
+                {bill.document ? (
+                    <TouchableOpacity onPress={() => openInAppBrowser(bill.document)} style={[styles.cardContainer, {borderWidth: 1, borderColor: '#000000c9'}]}>
+                        <Text style={styles.link}>View Full Document</Text>
+                    </TouchableOpacity>
+                ) : (
+                    <Text>No document available.</Text>
+                )}
         </ScrollView>
+
     );
 };
 
+
 const styles = StyleSheet.create({
-    container: { padding: 16, },
-    title: { fontSize: 18, fontWeight: 'bold', marginBottom: 6 },
-    subheader: { fontSize: 14, marginBottom: 12, color: '#333' },
-    sectionHeader: { fontSize: 14, fontWeight: '600', marginBottom: 8 },
-    summary: { fontSize: 14 },
-    partisanBarContainer: { 
-        flexDirection: 'row',
-        height: 10, 
-        borderRadius: 5, 
-        overflow: 'hidden', 
-        marginBottom: 6,  
+    container: { 
+        padding: 16, 
     },
-    partisanBarSegment: { height: '100%' },
-    sponsorCount: { fontSize: 12, color: '#555' },
+    header: {
+        width: '90%',
+        flexDirection: 'row',
+        marginBottom: 16,
+        alignItems: 'center',
+        gap: 12,
+    },
+    title: { 
+        fontSize: 18,
+        fontFamily: "InterSemiBold",
+        letterSpacing: -0.5,
+    },
+    subheader: { 
+        fontSize: 14,
+        fontFamily: 'InterSemiBold',
+        color: "#000000d4",
+        letterSpacing: -0.5,
+    },
+    sectionHeader: { 
+        fontFamily: 'InterSemiBold',
+        letterSpacing: -0.2,
+        fontSize: 14, 
+        marginBottom: 8 
+    },
+    summary: { 
+        fontSize: 14,
+        fontFamily: 'InterRegular',
+        letterSpacing: -0.2,
+    },
+    partisanBarContainer: {
+        flexDirection: 'row',
+        height: 10,
+        borderRadius: 5,
+        overflow: 'hidden',
+        marginBottom: 6,
+    },
+    partisanBarSegment: { 
+        height: '100%' 
+    },
+    sponsorCount: { 
+        fontSize: 12, color: '#555' 
+    },
     cardContainer: {
         backgroundColor: "#fff",
         borderRadius: 20,
         padding: 20,
         marginBottom: 10,
     },
-    link: { color: '#007aff', fontSize: 14, marginTop: 10 },
+    link: { 
+        fontFamily: "InterSemiBold",
+        color: '#0066ffc9', 
+        fontSize: 14,
+        letterSpacing: -0.2,
+    },
     backButton: {
         marginRight: 12,
         marginBottom: 16,

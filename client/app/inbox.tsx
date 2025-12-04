@@ -5,6 +5,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { fetchSavedBills } from '@/api/billsHandler';
 import * as Device from 'expo-device';
 import { Bill } from '@/components/types/BillWidgetTypes';
+import BackButton from '@/components/BackButton';
 
 interface Notification {
     id: string;
@@ -65,9 +66,7 @@ const Inbox = () => {
 
             {/* Back button */}
             <View style={styles.header}>
-                <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-                    <Ionicons name="arrow-back" size={24} color="black" />
-                </TouchableOpacity>
+                <BackButton/>
                 <Text style={styles.headerText}>Inbox</Text>
             </View>
 
@@ -94,10 +93,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         paddingHorizontal: 16,
         marginBottom: 20,
-    },
-
-    backButton: {
-        marginRight: 12,
+        gap: 12,
     },
 
     headerText: {

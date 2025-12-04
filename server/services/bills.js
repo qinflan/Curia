@@ -223,7 +223,12 @@ class BillService {
     async getTrendingBills(req, res) {
         try {
             const pipeline = buildBillAggregation([
-                { $sort: { likes: -1 } },
+                {
+                $addFields: {
+                    engagement: { $add: ["$likes", "$dislikes"] }
+                }
+            },
+                { $sort: { engagement: -1 } },
                 { $limit: 100 }
             ]);
 

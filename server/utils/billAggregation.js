@@ -70,7 +70,7 @@ module.exports.buildBillAggregation = function (initialStages = []) {
                 policyArea: 1,
                 number: 1,
                 type: 1,
-                url: 1,
+                document: 1,
                 republicanCount: 1,
                 democratCount: 1,
                 likes: 1,
