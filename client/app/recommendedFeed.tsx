@@ -62,12 +62,17 @@ export default function RecommendedFeed() {
 
     <ScrollView contentContainerStyle={styles.scrollViewContainer} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
       <SearchBar onSearch={(results, keyword) => {
+        if (!keyword || keyword.length === 0) {
+          setSearchTerm("");
+          loadRecommendedBills();
+          return;
+        }
         setBills(results);
         setSearchTerm(keyword);
       }} />
       <View style={styles.headerContainer}>
         <Text style={styles.headerText}>
-          {searchTerm ? `Results for "${searchTerm}"` : "Recommended"}
+          {searchTerm && searchTerm.length > 0 ? `Results for "${searchTerm}"` : "Recommended"}
         </Text>
       </View>
       <View style={styles.billsContainer}>

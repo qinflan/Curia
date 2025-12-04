@@ -1,5 +1,5 @@
 import { View, TouchableOpacity, TextInput, StyleSheet } from "react-native"
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { Ionicons } from "@expo/vector-icons"
 import { searchBillsByKeywords } from "@/api/billsHandler"
 import { Bill } from "./types/BillWidgetTypes"
@@ -10,6 +10,7 @@ type SearchBarProps = {
 
 const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
     const [keywords, setKeywords] = useState<string>("");
+    const inputRef = useRef<TextInput>(null);
 
     const handleSearchBills = async () => {
         try {
@@ -23,6 +24,8 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
     const handleClearSearch = async () => {
         if (keywords.length > 0) {
             setKeywords("")
+            inputRef.current?.blur();
+            onSearch?.([], "");
         }
     }
 
@@ -31,7 +34,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
             <TouchableOpacity style={styles.searchBtn} onPress={handleSearchBills}>
                 <Ionicons 
                     name="search"
-                    size={14} 
+                    size={16} 
                     color="black"
                 />
             </TouchableOpacity>
@@ -42,6 +45,15 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
                 placeholder="search bills"
                 onSubmitEditing={handleSearchBills}
             />
+            { keywords.length > 0 && (
+                <TouchableOpacity style={styles.searchBtn} onPress={handleClearSearch}>
+                    <Ionicons 
+                        name="close"
+                        size={18} 
+                        color="black"
+                    />
+                </TouchableOpacity>
+            )}
         </View>
     )
 }
