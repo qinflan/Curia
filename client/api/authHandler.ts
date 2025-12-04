@@ -1,30 +1,10 @@
-import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
-import { Platform } from 'react-native';
-
-
-const API_BASE_URL =
-  Platform.OS === "android"
-    ? "http://10.0.2.2:3000/api"
-    : "http://localhost:3000/api";
-
-
-// device storage helpers for tokens
-export const saveToken = async(key: string, value: string) => {
-    await SecureStore.setItemAsync(key, value);
-};
-
-export const getToken = async(key: string) => {
-    return await SecureStore.getItemAsync(key);
-};
-
-export const deleteToken = async(key: string) => {
-    await SecureStore.deleteItemAsync(key);
-};
+import { api } from './axiosInterceptor';
+import { saveToken, getToken, deleteToken } from './tokenStorage';
 
 // auth functions
 export const loginUser = async (email: string, password: string) => {
-    const response = await axios.post(`${API_BASE_URL}/users/login`, {email, password});
+    const response = await api.post(`/users/login`, {email, password});
     const {userId, accessToken, refreshToken } = response.data;
 
     await saveToken("access_token", accessToken);
@@ -35,7 +15,7 @@ export const loginUser = async (email: string, password: string) => {
 };
 
 export const registerUser = async (email: string, password: string) => {
-    const response = await axios.post(`${API_BASE_URL}/users/register`, {email, password});
+    const response = await api.post(`/users/register`, {email, password});
     const {userId, accessToken, refreshToken } = response.data;
 
     await saveToken("access_token", accessToken);
@@ -50,9 +30,7 @@ export const getUser = async () => {
 
     if (!accessToken) throw new Error("No access token stored.");
 
-    const response = await axios.get(`${API_BASE_URL}/users/me`, {
-        headers: { Authorization: `Bearer ${accessToken}` }
-    });
+    const response = await api.get(`/users/me`);
 
     return response.data;
 }
@@ -63,15 +41,7 @@ export const refreshAccessToken = async () => {
     if (!refreshToken) {
         throw new Error("Refresh token not currently stored");
     }
-
-    const response = await axios.post(`${API_BASE_URL}/users/refresh`, {}, {
-        headers: { Authorization: `Bearer ${refreshToken}`}
-    });
-    const { accessToken } = response.data;
-
-    await saveToken("access_token", accessToken);
-
-    return accessToken;
+    await api.post(`/users/refresh`);
 }
 
 export const logoutUser = async () => {
@@ -87,9 +57,7 @@ export const deleteUser = async () => {
         throw new Error("Access token not currently stored");
     }
 
-    const response = await axios.delete(`${API_BASE_URL}/users/delete`, {
-        headers: { Authorization: `Bearer ${accessToken}`}
-    });
+    const response = await api.delete(`/users/delete`);
 
     await logoutUser();
     return response.data;
@@ -102,12 +70,7 @@ export const updateUser = async (updates: Record<string, any>) => {
         throw new Error("Access token not currently stored");
     }
 
-    const response = await axios.put(`${API_BASE_URL}/users/update`,
-        updates,
-        {
-            headers: { Authorization: `Bearer ${accessToken}`}
-        }
-    );
+    const response = await api.put(`/users/update`, updates);
 
     return response.data;
 }

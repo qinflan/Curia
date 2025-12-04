@@ -1,19 +1,22 @@
 import axios from "axios";
 import { Platform } from "react-native";
-import * as SecureStore from "expo-secure-store";
 import { logoutUser } from "./authHandler";
+import { getToken, saveToken, deleteToken } from "./tokenStorage";
 
+// adjus after deploying backend
 const API_BASE_URL =
   Platform.OS === "android"
     ? "http://10.0.2.2:3000/api"
     : "http://localhost:3000/api";
 
-// helper functions
-const getToken = async (key: string) => await SecureStore.getItemAsync(key);
-const saveToken = async (key: string, value: string) => await SecureStore.setItemAsync(key, value);
-
 export const api = axios.create({
   baseURL: API_BASE_URL,
+});
+
+api.interceptors.request.use(async (config) => {
+  const token = await getToken("access_token");
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
 });
 
 let isRefreshing = false;
@@ -31,8 +34,9 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+    const status = error.response ? error.response.status : null;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (status === 403 || status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });

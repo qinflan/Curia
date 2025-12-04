@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import BackButton from "@/components/BackButton";
 
 import { useAuth } from "@/hooks/AuthContext";
 
@@ -36,19 +37,15 @@ export default function UpdateLocation() {
 
     return (
         <ScrollView
-            contentContainerStyle={{ padding: 24, paddingTop: 28 }}
+            contentContainerStyle={{ padding: 24}}
             showsVerticalScrollIndicator={false}
         >
 
             <View style={styles.header}>
-                <Ionicons name="arrow-back-circle" 
-                    size={32} 
-                    color="black" 
-                    style={styles.backButton}
-                    onPress={() => router.back()} 
-                />
+                <BackButton/>
                 <Text style={styles.title}>Update Location</Text>
             </View>
+
             <Text style={styles.subHeader}>Enter your current city and state</Text>
 
             <View style={styles.inputContainer}>
@@ -78,42 +75,37 @@ export default function UpdateLocation() {
 }
 
 const styles = StyleSheet.create({
-    backButton: {
-        position: "absolute",
-        left: 0
-    },
     header: {
         width: "100%",
+        gap: 12,
         flexDirection: "row",
         alignItems: "center",
-        justifyContent: "center",
-        marginBottom: 5,
         position: "relative",
     },
     title: {
         fontSize: 20,
-        fontWeight: "600",
         textAlign: "center",
         fontFamily: "InterSemiBold",
-        letterSpacing: -0.6
+        letterSpacing: -0.5
     },
     subHeader: {
         fontFamily: "InterRegular",
+        width: "100%",
         fontSize: 14,
         color: "black",
-        textAlign: "center",
-        marginBottom: 20,
+        marginBottom: 12,
+        marginTop: 40,
         letterSpacing: -0.2
     },
     inputContainer: {
         overflow: "hidden",
+        gap: 12,
     },
     input: {
         backgroundColor: "white",
         fontFamily: "InterRegular",
         fontSize: 16,
         color: "black",
-        marginBottom: 15,
         paddingHorizontal: 12,
         paddingVertical: 10,
         borderRadius: 14,
