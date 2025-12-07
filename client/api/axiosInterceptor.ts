@@ -1,7 +1,7 @@
 import axios from "axios";
 import { Platform } from "react-native";
 import { logoutUser } from "./authHandler";
-import { getToken, saveToken, deleteToken } from "./tokenStorage";
+import { getToken, saveToken } from "./tokenStorage";
 
 // adjus after deploying backend
 const API_BASE_URL =

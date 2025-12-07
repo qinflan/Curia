@@ -22,7 +22,7 @@ const fetchRecentBills = async () => {
     const bills = [];
     let offset = 0;
     const limit = 250;
-    const maxBills = 1000; // temp for sandbox dev, we will tweak this after backend is done
+    const maxBills = 2500; // temp for sandbox dev, we will tweak this after backend is done
 
 
     const now = new Date();
