@@ -15,22 +15,9 @@ dotenv.config();
 const API_KEY = process.env.CONGRESS_GOV_API_KEY;
 const CONGRESS_BASE_URL = "https://api.congress.gov/v3";
 
-console.log("Bill enrichment module loaded");
-console.log("ACTION_CODE_MAP:", ACTION_CODE_MAP);
-
-const fetchRecentBills = async () => {
+const fetchBills = async ({fromDateTime, toDateTime, limit = 250, maxBills = 500}) => {
     const bills = [];
     let offset = 0;
-    const limit = 250;
-    const maxBills = 2500; // temp for sandbox dev, we will tweak this after backend is done
-
-
-    const now = new Date();
-    const oneYearAgo = new Date();
-    oneYearAgo.setFullYear(now.getFullYear() - 1);
-
-    const fromDateTime = oneYearAgo.toISOString().split('T')[0] + 'T00:00:00Z';
-    const toDateTime = now.toISOString().split('T')[0] + 'T00:00:00Z';
 
     while (bills.length < maxBills) {
         try {
@@ -56,9 +43,41 @@ const fetchRecentBills = async () => {
             console.log(offset, bills.length, 'bills fetched so far');
         } catch (error) {
             console.error("Error fetching recent bills:", error);
+            break;
         }
     }
     return bills;
+};
+
+const getLatestBillUpdate = async () => {
+  const latestBill = await Bill.findOne().sort({ updateDate: -1 }).limit(1);
+  return latestBill ? latestBill.updateDate : null;
+};
+
+const fetchIncrementalBills = async (batchDays = 2) => {
+  const latestUpdate = await getLatestBillUpdate();
+  let fromDateTime;
+  if (latestUpdate) {
+    fromDateTime = new Date(new Date(latestUpdate).getTime() + 1000).toISOString().replace(/\.\d{3}Z$/, 'Z')
+  } else {
+    // rollback to last month of bills to avoid api limiting on empty DB
+    fromDateTime = new Date(Date.now() - batchDays * 24 * 60 * 60 * 1000).toISOString().replace(/\.\d{3}Z$/, 'Z');
+  }
+
+  const now = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
+
+  return await fetchBills({ fromDateTime, toDateTime: now, maxBills: 500 });
+};
+
+const fetchHistoricBillsChunk = async (toDateTime, windowDays = 2) => {
+  const fromDateTime = new Date(toDateTime);
+  fromDateTime.setDate(fromDateTime.getDate() - windowDays);
+
+  return await fetchBills({ 
+    fromDateTime: fromDateTime.toISOString().replace(/\.\d{3}Z$/, 'Z'), 
+    toDateTime: toDateTime.toISOString().replace(/\.\d{3}Z$/, 'Z'),
+    limit: 250
+  });
 };
 
 const enrichBills = async (apiBills) => {
@@ -241,6 +260,8 @@ const normalizeSummaries = (summaryObj) => {
 };
 
 module.exports = {
-    fetchRecentBills,
+    fetchBills,
+    fetchIncrementalBills,
+    fetchHistoricBillsChunk,
     enrichBills,
 };

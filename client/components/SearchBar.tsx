@@ -14,8 +14,8 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
 
     const handleSearchBills = async () => {
         try {
-            const bills = await searchBillsByKeywords(keywords)
-            onSearch?.(bills, keywords)
+            const response = await searchBillsByKeywords(keywords)
+            onSearch?.(response.data, keywords)
         } catch (err) {
             console.error("bill search error: ", err)
         }
@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         borderRadius: 14,
-        width: "90%",
+        width: "100%",
         paddingHorizontal: 6,
         marginBottom: 30,
     },

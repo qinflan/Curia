@@ -308,7 +308,25 @@ const styles = StyleSheet.create({
         maxHeight: 300,
     },
 
-    
 });
 
-export default BillWidget
+// prevent rerenders by memoizing bill data
+export default React.memo(BillWidget, (prevProps, nextProps) => {
+    const sameBill = prevProps.bill._id === nextProps.bill._id;
+    const sameLikes = prevProps.bill.likes === nextProps.bill.likes;
+    const sameDislikes = prevProps.bill.dislikes === nextProps.bill.dislikes;
+
+    const sameSaved =
+        prevProps.user.savedBills.includes(prevProps.bill._id) ===
+        nextProps.user.savedBills.includes(nextProps.bill._id);
+
+    const sameLiked =
+        prevProps.user.likedBills.includes(prevProps.bill._id) ===
+        nextProps.user.likedBills.includes(nextProps.bill._id);
+
+    const sameDisliked =
+        prevProps.user.dislikedBills.includes(prevProps.bill._id) ===
+        nextProps.user.dislikedBills.includes(nextProps.bill._id);
+
+    return sameBill && sameLikes && sameDislikes && sameSaved && sameLiked && sameDisliked;
+});

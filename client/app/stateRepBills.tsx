@@ -4,13 +4,11 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import BillWidget from "@/components/BillWidget";
 import { fetchBillsByRep } from "@/api/billsHandler";
 import { getUser } from "@/api/authHandler";
-import { Ionicons } from "@expo/vector-icons"
 import SpinnerFallback from "@/components/SpinnerFallback";
 import BackButton from "@/components/BackButton";
 
 export default function StateRepBills() {
     const { repId, firstName, lastName } = useLocalSearchParams<{ repId: string; firstName: string; lastName: string }>();
-    const router = useRouter();
     const [bills, setBills] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState<any>(null);
@@ -21,8 +19,8 @@ export default function StateRepBills() {
                 const fetchedUser = await getUser();
                 setUser(fetchedUser);
 
-                const fetchedBills = await fetchBillsByRep(repId);
-                setBills(fetchedBills);
+                const response = await fetchBillsByRep(repId);
+                setBills(response.data);
             } catch (err) {
                 console.error(err);
             } finally {

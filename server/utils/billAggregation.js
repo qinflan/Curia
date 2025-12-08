@@ -62,6 +62,7 @@ module.exports.buildBillAggregation = function (initialStages = []) {
         // Final shape
         {
             $project: {
+                _id: 1,
                 title: 1,
                 summary: 1,
                 shortSummary: 1,

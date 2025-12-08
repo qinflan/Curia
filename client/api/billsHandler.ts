@@ -1,15 +1,5 @@
-import axios from 'axios';
-import { Platform } from 'react-native';
-import { getToken } from './tokenStorage';
 import { getUser } from './authHandler';
 import { api } from './axiosInterceptor';
-
-// adjust after deploying backend
-const API_BASE_URL =
-  Platform.OS === "android"
-    ? "http://10.0.2.2:3000/api"
-    : "http://localhost:3000/api";
-
 
 export const fetchSavedBills = async () => {
     const response = await api.get(`/bills/saved`);
@@ -31,13 +21,14 @@ export const unsaveBill = async (billId: string) => {
     return response.data;
 }
 
-export const fetchRecommendedBills = async () => {
-    const response = await api.get(`/bills/recommendations`);
+export const fetchRecommendedBills = async (page: number) => {
+    console.log(page);
+    const response = await api.get(`/bills/recommendations`, { params: { page, limit: 25 } });
     return response.data;
 }
 
-export const fetchTrendingBills = async () => {
-    const response = await api.get(`/bills/trending`);
+export const fetchTrendingBills = async (page: number) => {
+    const response = await api.get(`/bills/trending`, { params: { page, limit: 25} });
     return response.data;
 }
 
@@ -75,10 +66,10 @@ export const fetchBillsByRep = async (bioguideId: string) => {
 export const searchBillsByKeywords = async (keyword: string) => {
     if (!keyword.trim()) {
         return []
-    }
+    } 
 
     const response = await api.get(`/bills/search`, {
-        params: { keyword: keyword}
+        params: { keyword: keyword }
     })
     return response.data;
 }

@@ -5,9 +5,8 @@ import {
     getUser,
     updateUser,
     logoutUser,
-    refreshAccessToken,
-    getToken,
 } from "@/api/authHandler";
+import { getToken } from "@/api/tokenStorage";
 
 
 export type User = {
@@ -24,7 +23,7 @@ export type User = {
         subscription: boolean,
         notifications: boolean,
         theme: { 
-            type: String, 
+            type: string, 
             enum: ['light', 'dark'], 
             default: 'light' 
             }
@@ -40,7 +39,6 @@ type AuthContextType = {
     getUser: () => Promise<void>,
     logout: () => Promise<void>,
     update: (updates: Record<string, any>) => Promise<void>,
-    refresh: () => Promise<void>
 }
 
 
@@ -75,10 +73,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setUser(fetchedUser);
     } catch (error: any) {
       console.warn("Error fetching user:", error.message);
-      // if token expired, try to refresh it
-      if (error.response?.status === 401) {
-        await refresh();
-      }
     }
   };
 
@@ -107,17 +101,6 @@ const login = async (email: string, password: string) => {
       throw error;
     } finally {
       setLoading(false);
-    }
-  };
-
-  const refresh = async () => {
-    try {
-      const newToken = await refreshAccessToken();
-      setAccessToken(newToken);
-      await loadUser();
-    } catch (error) {
-      console.warn("Refresh token failed:", error);
-      await logout();
     }
   };
 
@@ -150,7 +133,6 @@ const login = async (email: string, password: string) => {
         register,
         getUser: loadUser,
         update,
-        refresh,
         logout,
       }}
     >

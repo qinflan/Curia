@@ -1,23 +1,34 @@
 const cron = require('node-cron');
-const { fetchRecentBills, enrichBills } = require('./seedBills');
+const { fetchIncrementalBills, fetchHistoricBillsChunk, enrichBills } = require('./seedBills');
+const Bill = require('../models/bill')
 
 // cron job for polling congres.gov api and fetching/updating bills
-cron.schedule('*/60 * * * *', async () => {
-    console.log(`[${new Date().toISOString()}] Running dev bill polling cron...`);
+
+const runCron = async () => {
+    console.log(`[${new Date().toISOString()}] Running congress.gov api fetch cron...`);
 
     try {
-        const bills = await fetchRecentBills();
+        const newBills = await fetchIncrementalBills();
+        console.log('Incremental fetched:', newBills.length);
+        if (newBills.length) {
+            await enrichBills(newBills);
+        }
 
-        await enrichBills(bills);
+        const oldestBill = await Bill.findOne().sort({ updateDate: 1 });
+        const toDate = oldestBill ? new Date(oldestBill.updateDate) : new Date();
+        const historicChunk = await fetchHistoricBillsChunk(toDate, 3); // 3-day window
+        if (historicChunk.length) {
+        console.log(`Fetched ${historicChunk.length} historic bills`);
+        await enrichBills(historicChunk);
+        }
 
         console.log(`[${new Date().toISOString()}] Dev cron finished.`);
     } catch (error) {
         console.error(`[${new Date().toISOString()}] Error in dev cron:`, error);
     }
-});
+}
 
-(async () => {
-    console.log("Running dev cron on startup...");
-    const bills = await fetchRecentBills();
-    await enrichBills(bills);
-})();
+// run cron once on startup, then schedule for every hour
+runCron();
+
+cron.schedule('0 * * * *', runCron);

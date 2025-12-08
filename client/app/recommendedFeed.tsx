@@ -1,4 +1,4 @@
-import { Text, View, ScrollView, StyleSheet, RefreshControl } from "react-native";
+import { Text, View, ScrollView, StyleSheet, RefreshControl, FlatList } from "react-native";
 import { useState, useEffect, useCallback } from "react";
 import { getUser } from "@/api/authHandler";
 import { fetchRecommendedBills } from "@/api/billsHandler";
@@ -9,7 +9,10 @@ import SpinnerFallback from "@/components/SpinnerFallback";
 
 export default function RecommendedFeed() {
   const [bills, setBills] = useState<Bill[]>([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [user, setUser] = useState<{
@@ -31,26 +34,61 @@ export default function RecommendedFeed() {
     loadUser();
   }, []);
 
-  const loadRecommendedBills = useCallback(async () => {
+  // INFINITE SCROLL
+  const loadRecommendedBills = useCallback(async (pageNumber = 1) => {
     try {
-      const bills = await fetchRecommendedBills();
-      setBills(bills);
+      if (pageNumber === 1 && !refreshing) setLoading(true);
+      else setLoadingMore(true);
+
+      const response = await fetchRecommendedBills(pageNumber);
+      const newBills = response.data;
+
+      if (pageNumber === 1) {
+      setBills(newBills);
+    } else {
+      setBills(prev => [...prev, ...newBills]);
+    }
+
+    setHasMore(newBills.length > 0);
+    setPage(pageNumber);
+
     } catch (error) {
       console.error("Error fetching recommended bills:", error);
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
-  }, []);
+  }, [refreshing]);
 
   useEffect(() => {
-    loadRecommendedBills();
+    loadRecommendedBills(1);
   }, [loadRecommendedBills]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await loadRecommendedBills();
+    setHasMore(true);
+    await loadRecommendedBills(1);
     setRefreshing(false);
   }, [loadRecommendedBills]);
+
+  const loadMore = () => {
+    if (loadingMore || !hasMore || searchTerm.length > 0) return;
+    loadRecommendedBills(page + 1);
+  };
+
+  const handleSearch = useCallback(
+    (results: Bill[], keyword: string) => {
+      if (!keyword || keyword.length === 0) {
+        setSearchTerm("");
+        loadRecommendedBills(1);
+        return;
+      }
+      setBills(results);
+      setSearchTerm(keyword);
+      setHasMore(false);
+    },
+    [loadRecommendedBills]
+  );
 
   if (loading) {
     return (
@@ -60,35 +98,45 @@ export default function RecommendedFeed() {
 
   return (
 
-    <ScrollView contentContainerStyle={styles.scrollViewContainer} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
-      <SearchBar onSearch={(results, keyword) => {
-        if (!keyword || keyword.length === 0) {
-          setSearchTerm("");
-          loadRecommendedBills();
-          return;
+    <View style={styles.container}>
+      <FlatList 
+        data={bills}
+        keyExtractor={(item) => item._id}
+        showsVerticalScrollIndicator={false}
+        renderItem={({ item }) => 
+          user ?
+            <View style={styles.billWrapper}> 
+              <BillWidget bill={item} user={user}/> 
+            </View>
+            : null
         }
-        setBills(results);
-        setSearchTerm(keyword);
-      }} />
-      <View style={styles.headerContainer}>
-        <Text style={styles.headerText}>
-          {searchTerm && searchTerm.length > 0 ? `Results for "${searchTerm}"` : "Recommended"}
-        </Text>
-      </View>
-      <View style={styles.billsContainer}>
-        {user && bills.map((bill) => (
-          <BillWidget key={bill._id} bill={bill} user={user} />
-        ))}
-      </View>
-    </ScrollView>
+
+        ListHeaderComponent={
+          <>
+            <View style={styles.headerContainer}>
+               <SearchBar onSearch={handleSearch} />
+              <Text style={styles.headerText}>
+                {searchTerm ? `Results for "${searchTerm}"` : "Recommended"}
+              </Text>
+            </View>
+          </>
+        }
+        contentContainerStyle={styles.billsContainer}
+        onEndReached={loadMore}
+        onEndReachedThreshold={0.5}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  scrollViewContainer: {
+  container: {
+    flex: 1,
     width: '100%',
     alignItems: 'center',
-    paddingVertical: 16,
   },
 
   headerText: {
@@ -101,12 +149,19 @@ const styles = StyleSheet.create({
   },
 
   billsContainer: {
-    width: '90%',
+    width: '100%',
+    paddingBottom: 50,
     alignItems: 'center',
+  },
+
+  billWrapper: {
+    alignSelf: "center",
+    marginHorizontal: 16
   },
 
   headerContainer: {
     width: '90%',
     alignItems: 'center',
+    marginTop: 16,
   }
 });

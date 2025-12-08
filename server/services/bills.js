@@ -2,6 +2,7 @@ const Bill = require("../models/bill");
 const User = require("../models/user");
 const mongoose = require("mongoose");
 const { buildBillAggregation } = require("../utils/billAggregation")
+const paginateAggregation = require("../utils/paginateAggregation")
 
 class BillService {
     async getBillsByPolicyAreas(req, res) {
@@ -17,7 +18,10 @@ class BillService {
                 { $match: { policyArea: { $in: interests } } }
             ]);
 
-            const bills = await Bill.aggregate(pipeline);
+            const page = Number(req.query.page) || 1;
+            const limit = Number(req.query.limit) || 100;
+
+            const bills = await paginateAggregation(Bill, pipeline, { page, limit });
             res.status(200).json(bills);
         } catch (error) {
             return res.status(500).json({ message: 'Server error', error });
@@ -232,9 +236,11 @@ class BillService {
                 { $limit: 100 }
             ]);
 
-            const bills = await Bill.aggregate(pipeline);
-            res.status(200).json(bills);
+            const page = Number(req.query.page) || 1;
+            const limit = Number(req.query.limit) || 100;
 
+            const bills = await paginateAggregation(Bill, pipeline, { page, limit });
+            res.status(200).json(bills);
         } catch (error) {
             return res.status(500).json({ message: 'Server error', error });
         }
@@ -304,7 +310,11 @@ class BillService {
                     }
                 }
             ]);
-            const bills = await Bill.aggregate(pipeline);
+            
+            const page = Number(req.query.page) || 1;
+            const limit = Number(req.query.limit) || 100;
+
+            const bills = await paginateAggregation(Bill, pipeline, { page, limit });
             res.status(200).json(bills);
 
         } catch (error) {
@@ -331,10 +341,12 @@ class BillService {
                 {
                     $sort: { score: { $meta: "textScore" } }
                 },
-                { $limit: 100 }
             ]);
 
-            const bills = await Bill.aggregate(pipeline);
+            const page = Number(req.query.page) || 1;
+            const limit = Number(req.query.limit) || 100;
+
+            const bills = await paginateAggregation(Bill, pipeline, { page, limit });
             res.status(200).json(bills);
 
         } catch (error) {

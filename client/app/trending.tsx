@@ -1,13 +1,17 @@
-import { Text, View, ScrollView, StyleSheet, ActivityIndicator, RefreshControl } from "react-native";
+import { Text, View, StyleSheet, RefreshControl, FlatList } from "react-native";
 import React, { useState, useEffect, useCallback } from 'react'
 import { fetchTrendingBills } from "@/api/billsHandler";
 import { getUser } from "@/api/authHandler";
 import BillWidget from "@/components/BillWidget";
 import type { Bill } from "@/components/types/BillWidgetTypes";
+import SpinnerFallback from "@/components/SpinnerFallback";
 
-export default function AccountSettings() {
+export default function TrendingBills() {
   const [bills, setBills] = useState<Bill[]>([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [user, setUser] = useState<{
     savedBills: string[];
@@ -28,14 +32,25 @@ export default function AccountSettings() {
     loadUser();
   }, []);
 
-  const loadTrendingBills = useCallback(async () => {
+  const loadTrendingBills = useCallback(async (pageNumber = 1) => {
     try {
-      const bills = await fetchTrendingBills();
-      setBills(bills);
+      const response = await fetchTrendingBills(pageNumber);
+      const newBills = response.data;
+
+      if (pageNumber === 1) {
+        setBills(newBills);
+      } else {
+        setBills(prev => [...prev, ...newBills]);
+      }
+
+      setHasMore(newBills.length > 0);
+      setPage(pageNumber);
+      
     } catch (error) {
       console.error("Error fetching trending bills:", error);
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
   }, []);
 
@@ -49,40 +64,48 @@ export default function AccountSettings() {
     setRefreshing(false);
   }, [loadTrendingBills]);
 
+    const loadMore = () => {
+    if (loadingMore || !hasMore) return;
+    loadTrendingBills(page + 1);
+  };
+
   if (loading) {
     return (
-      <View
-        style={{
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <ActivityIndicator/>
-      </View>
+      <SpinnerFallback />
     );
   }
 
   return (
-
-    <ScrollView contentContainerStyle={styles.scrollViewContainer} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>}>
-      <View style={styles.headerContainer}>
-        <Text style={styles.headerText}>Trending</Text>
-      </View>
-      <View style={styles.billsContainer}>
-      {user && bills.map((bill) => (
-        <BillWidget key={bill._id} bill={bill} user={user}/>
-      ))}
-      </View>
-    </ScrollView>
+    <FlatList
+      data={bills}
+      keyExtractor={(item) => item._id}
+      ListHeaderComponent={
+        <View style={styles.headerContainer}>
+          <Text style={styles.headerText}>Trending Bills</Text>
+        </View>
+      }
+      renderItem={({ item }) => user && 
+        <View style={styles.billWrapper}>
+          <BillWidget bill={item} user={user} />
+        </View>
+      }
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={styles.billsContainer}
+      onEndReached={loadMore }
+      onEndReachedThreshold={0.5}
+      ListFooterComponent={
+        loadingMore ? <SpinnerFallback /> : null
+      }
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+    />
   );  
 }
 
   const styles = StyleSheet.create({
-    scrollViewContainer: {
+    container: {
+      flex: 1,
       width: '100%',
       alignItems: 'center',
-      paddingVertical: 16,
     },
 
     headerText: {
@@ -95,13 +118,17 @@ export default function AccountSettings() {
     },
 
     billsContainer: {
-      width: '90%',
-      alignItems: 'center',
+      width: '100%',
+      paddingBottom: 50,
+    },
+
+    billWrapper: {
+      marginHorizontal: 16
     },
 
     headerContainer: {
-      width: '90%',
-      alignItems: 'center',
+      marginHorizontal: 16,
+      marginTop: 16,
     }
   });
 
