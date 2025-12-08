@@ -1,13 +1,8 @@
 import axios from "axios";
-import { Platform } from "react-native";
 import { logoutUser } from "./authHandler";
 import { getToken, saveToken } from "./tokenStorage";
 
-// adjus after deploying backend
-const API_BASE_URL =
-  Platform.OS === "android"
-    ? "http://10.0.2.2:3000/api"
-    : "http://localhost:3000/api";
+const API_BASE_URL = "http://ec2-18-205-41-149.compute-1.amazonaws.com/api"
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
