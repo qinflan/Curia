@@ -10,7 +10,7 @@ import {
 import { useRouter } from "expo-router";
 import { useAuth } from "@/hooks/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
-import Logo from "../assets/images/logo-dark.svg";
+import Logo from "../assets/images/lockup-dark.svg";
 import { ResizeMode, Video } from "expo-av";
 import { BlurView } from "expo-blur";
 
@@ -56,7 +56,7 @@ export default function Signup() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <Logo width={140} height={80} style={styles.logo} />
+        <Logo width={200} height={80} style={styles.logo} />
         <Text style={styles.title}>Sign Up</Text>
         <Text style={styles.subtitle}>
           Create an account to get started
@@ -157,9 +157,9 @@ const styles = StyleSheet.create({
     fontFamily: "InterSemiBold",
     width: "100%",
     textAlign: "center",
-    textShadowColor: "rgba(0,0,0,0.2)",
+    textShadowColor: "rgba(0,0,0,0.3)",
     textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 15,
+    textShadowRadius: 4,
     letterSpacing: -1,
     fontSize: 22,
     color: "#fff",
@@ -169,9 +169,9 @@ const styles = StyleSheet.create({
     fontFamily: "InterRegular",
     width: "100%",
     textAlign: "center",
-    textShadowColor: "rgba(0,0,0,0.2)",
+    textShadowColor: "rgba(0,0,0,0.3)",
     textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 15,
+    textShadowRadius: 4,
     fontSize: 14,
     color: "#ffffffff",
     marginBottom: 30,
@@ -220,9 +220,9 @@ const styles = StyleSheet.create({
     fontFamily: "InterRegular",
     width: "100%",
     textAlign: "center",
-    textShadowColor: "rgba(0,0,0,0.2)",
+    textShadowColor: "rgba(0,0,0,0.3)",
     textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 15,
+    textShadowRadius: 4,
     color: "#fff",
     fontSize: 14,
     marginBottom: 20,

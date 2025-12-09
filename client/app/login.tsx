@@ -10,7 +10,7 @@ import { useAuth } from "@/hooks/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
 import { ResizeMode, Video } from "expo-av";
 import { BlurView } from "expo-blur";
-import Logo from "../assets/images/logo-dark.svg";
+import Logo from "../assets/images/lockup-dark.svg";
 
 export default function LoginLogin() {
   const { login } = useAuth();
@@ -40,7 +40,7 @@ export default function LoginLogin() {
         shouldPlay
         isMuted
       />
-      <Logo width={140} height={80} style={styles.logo} />
+      <Logo width={200} height={80} style={styles.logo} />
       <Text style={styles.title}>Login</Text>
       <Text style={styles.subtitle}>
         Enter your email to sign up for this app
@@ -119,9 +119,9 @@ const styles = StyleSheet.create({
     fontFamily: "InterSemiBold",
     width: "100%",
     textAlign: "center",
-    textShadowColor: "rgba(0,0,0,0.2)",
+    textShadowColor: "rgba(0,0,0,0.3)",
     textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 15,
+    textShadowRadius: 4,
     letterSpacing: -1,
     fontSize: 22,
     color: "#fff",
@@ -131,9 +131,9 @@ const styles = StyleSheet.create({
     fontFamily: "InterRegular",
     width: "100%",
     textAlign: "center",
-    textShadowColor: "rgba(0,0,0,0.2)",
+    textShadowColor: "rgba(0,0,0,0.3)",
     textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 15,
+    textShadowRadius: 4,
     fontSize: 14,
     color: "#ffffffff",
     marginBottom: 30,

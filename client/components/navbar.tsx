@@ -57,6 +57,6 @@ const styles = StyleSheet.create({
     height: 50,
     backgroundColor: "#fff",
     borderTopWidth: 1,
-    borderTopColor: "#ccc",
+    borderTopColor: "#dadadaff",
   },
 });

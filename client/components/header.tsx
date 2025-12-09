@@ -1,7 +1,6 @@
-import { useState } from "react";
 import { View, TouchableOpacity, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Logo from "../assets/images/logo-light.svg";
+import Logo from "../assets/images/lockup-light.svg";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useRouter } from "expo-router";
 
@@ -11,9 +10,9 @@ export default function Header() {
   return (
       <SafeAreaView edges={["top"]} style={styles.safeArea}>
         <View style={styles.container}>
-          <Logo width={68} height={68} style={styles.logo} />
+          <Logo width={100} height={68} style={styles.logo} />
           <TouchableOpacity style={styles.bellIcon} onPress={() => router.push('/inbox')}>
-            <Ionicons name="notifications-outline" size={25} color="black" />
+            <Ionicons name="notifications" size={22} color="black" />
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -32,16 +31,16 @@ const styles = StyleSheet.create({
     height: 45,
     backgroundColor: "#fff",
     borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
+    borderBottomColor: "#dadadaff",
   },
 
   logo: {
     width: "100%",
-    marginLeft: 30
+    marginLeft: 20
   },
 
   bellIcon: {
     position: "absolute",
-    right: 30,
+    right: 25,
   }
 });

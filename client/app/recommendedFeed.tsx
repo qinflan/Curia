@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
   },
 
   headerText: {
-    fontSize: 20,
+    fontSize: 22,
     marginBottom: 16,
     fontFamily: 'InterSemiBold',
     letterSpacing: -0.8,

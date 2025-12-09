@@ -21,7 +21,7 @@ export default function Landing() {
         isMuted
         />
 
-      <Logo width={200} height={100} style={styles.logo}/>
+      <Logo width={250} height={100} style={styles.logo}/>
 
       <Text style={styles.heroText}>Learn to know how politics are actually happening around you.</Text>
 

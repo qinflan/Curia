@@ -275,11 +275,10 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 4,
-        fontSize: 10
     },
 
     detailsText: {
-        fontSize: 10,
+        fontSize: 12,
         fontFamily: 'InterRegular',
         letterSpacing: -0.4,
     },

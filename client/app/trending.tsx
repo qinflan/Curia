@@ -86,7 +86,7 @@ export default function TrendingBills() {
     },
 
     headerText: {
-      fontSize: 20,
+      fontSize: 22,
       marginBottom: 16,
       fontFamily: 'InterSemiBold',
       letterSpacing: -0.8,
