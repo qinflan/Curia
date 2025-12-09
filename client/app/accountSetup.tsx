@@ -1,4 +1,4 @@
-import React, { use, useState } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -12,7 +12,7 @@ import { ResizeMode, Video } from "expo-av";
 import { BlurView } from "expo-blur";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { SafeAreaView } from "react-native-safe-area-context";
-import {FED_POLICY_AREAS} from "./enums/BillsEnums"; 
+import { FED_POLICY_AREAS } from "./utils/BillsEnums";
 import { useAuth } from "@/hooks/AuthContext";
 import { useRouter } from "expo-router";
 import { getPushToken, registerPushToken } from "@/api/notificationHandler";
@@ -84,158 +84,159 @@ export default function AccountSetup() {
   const handleSubmit = async () => {
     try {
       await update({
-      firstName: form.firstName,
-      lastName: form.lastName, 
-      city: form.city,
-      state: form.state,
-      setupComplete: true,
-      dateOfBirth: form.dob,
-      preferences: {
-        interests: form.interests,
-      },
-    });
-
-    // can only get push token on mobile device
-    if (Device.isDevice) {
-      const token = await getPushToken();
-      if (token) {
-        try {
-          await registerPushToken(token);
-          console.log("Push token registered:", token);
-        } catch (err) {
-          console.error("Failed to register push token:", err);
-        }
-      }
-    };
+        firstName: form.firstName,
+        lastName: form.lastName,
+        city: form.city,
+        state: form.state,
+        setupComplete: true,
+        dateOfBirth: form.dob,
+        preferences: {
+          interests: form.interests,
+        },
+      });
 
     } catch (err) {
       Alert.alert("Error", "Failed to complete account setup. Please try again.");
       return;
     }
-    router.replace("/homeDashboard");
-  };
 
-  return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <Video
-        source={require("../assets/videos/gradient.mp4")}
-        style={StyleSheet.absoluteFill}
-        resizeMode={ResizeMode.COVER}
-        isLooping
-        shouldPlay
-        isMuted
-        />
-      <View style={styles.container}>
+    // can only get push token on mobile device
+    if (Device.isDevice) {
+      try {
+        const token = await getPushToken();
+        if (token) {
+          await registerPushToken(token);
+          console.log("Push token registered:", token);
+        };
+      } catch (err) {
+        console.warn("Failed to register push token:", err);
+      };
+    };
 
-        {step === 1 && (
-          <BlurView intensity={20} tint="dark" style={styles.blurContainer}>
-            <Text style={styles.header}>Let&apos;s setup your account.</Text>
-            <Text style={styles.subHeader}>What’s your name?</Text>
-            <TextInput
-              placeholder="First Name"
-              style={styles.input}
-              placeholderTextColor={"rgba(255, 255, 255, 0.6)"}
-              value={form.firstName}
-              onChangeText={(t) => setForm({ ...form, firstName: t })}
-            />
-            <TextInput
-              placeholder="Last Name"
-              style={styles.input}
-              placeholderTextColor={"rgba(255, 255, 255, 0.6)"}
-              value={form.lastName}
-              onChangeText={(t) => setForm({ ...form, lastName: t })}
-            />
-  
-          </BlurView>
-        )}
+  router.replace("/homeDashboard");
+};
 
-        {step === 2 && (
-          <BlurView intensity={20} tint="dark" style={styles.blurContainer}>
-            <Text style={styles.subHeader}>Where are you located?</Text>
-            <TextInput
-              placeholder="City"
-              placeholderTextColor={"rgba(255, 255, 255, 0.6)"}
-              style={styles.input}
-              value={form.city}
-              onChangeText={(t) => setForm({ ...form, city: t })}
-            />
-            <TextInput
-              placeholder="State"
-              placeholderTextColor={"rgba(255, 255, 255, 0.6)"}
-              style={styles.input}
-              value={form.state}
-              onChangeText={(t) => setForm({ ...form, state: t })}
-            />
-          </BlurView>
-        )}
+return (
+  <SafeAreaView style={{ flex: 1 }}>
+    <Video
+      source={require("../assets/videos/gradient.mp4")}
+      style={StyleSheet.absoluteFill}
+      resizeMode={ResizeMode.COVER}
+      isLooping
+      shouldPlay
+      isMuted
+    />
+    <View style={styles.container}>
 
-        {step === 3 && (
-          <>
-            <Text style={styles.subHeader}>When’s your birthday?</Text>
-            <TouchableOpacity
-              // style={styles.dateButton}
-              onPress={() => setShowDatePicker(true)}
-            >
-              <BlurView intensity={20} tint="dark" style={styles.blurContainer}>
-                <Text style={styles.dateText}>{form.dob ? form.dob.toDateString() : "Select Date of Birth"}</Text>
-              </BlurView>
-            </TouchableOpacity>
+      {step === 1 && (
+        <BlurView intensity={20} tint="dark" style={styles.blurContainer}>
+          <Text style={styles.header}>Let&apos;s setup your account.</Text>
+          <Text style={styles.subHeader}>What’s your name?</Text>
+          <TextInput
+            placeholder="First Name"
+            style={styles.input}
+            placeholderTextColor={"rgba(255, 255, 255, 0.6)"}
+            value={form.firstName}
+            onChangeText={(t) => setForm({ ...form, firstName: t })}
+          />
+          <TextInput
+            placeholder="Last Name"
+            style={styles.input}
+            placeholderTextColor={"rgba(255, 255, 255, 0.6)"}
+            value={form.lastName}
+            onChangeText={(t) => setForm({ ...form, lastName: t })}
+          />
 
-            <DateTimePickerModal
-                isVisible={showDatePicker}
-                mode="date"
-                maximumDate={new Date()}
-                date={form.dob || new Date()}
-                onConfirm={(date: Date) => {
-                  setForm(prev => ({ ...prev, dob: date }));
-                  setShowDatePicker(false);
-                }}
-                onCancel={() => setShowDatePicker(false)}
-                />
-          </>
-        )}
+        </BlurView>
+      )}
 
-        {step === 4 && (
-          <>
-            <Text style={styles.subHeader}>Select up to 5 interests</Text>
-            <ScrollView contentContainerStyle={styles.interestContainer}>
-              {FED_POLICY_AREAS.map((area) => {
-                const selected = form.interests.includes(area);
-                return (
-                  <TouchableOpacity
-                    key={area}
-                    style={selected && styles.selectedTile}
-                    onPress={() => toggleInterest(area)}
-                  >
-                    <BlurView intensity={selected ? 50 : 20} tint="dark" style={styles.interestTile}>
+      {step === 2 && (
+        <BlurView intensity={20} tint="dark" style={styles.blurContainer}>
+          <Text style={styles.subHeader}>Where are you located?</Text>
+          <TextInput
+            placeholder="City"
+            placeholderTextColor={"rgba(255, 255, 255, 0.6)"}
+            style={styles.input}
+            value={form.city}
+            onChangeText={(t) => setForm({ ...form, city: t })}
+          />
+          <TextInput
+            placeholder="State"
+            placeholderTextColor={"rgba(255, 255, 255, 0.6)"}
+            style={styles.input}
+            value={form.state}
+            onChangeText={(t) => setForm({ ...form, state: t })}
+          />
+        </BlurView>
+      )}
+
+      {step === 3 && (
+        <>
+          <Text style={styles.subHeader}>When’s your birthday?</Text>
+          <TouchableOpacity
+            // style={styles.dateButton}
+            onPress={() => setShowDatePicker(true)}
+          >
+            <BlurView intensity={20} tint="dark" style={styles.blurContainer}>
+              <Text style={styles.dateText}>{form.dob ? form.dob.toDateString() : "Select Date of Birth"}</Text>
+            </BlurView>
+          </TouchableOpacity>
+
+          <DateTimePickerModal
+            isVisible={showDatePicker}
+            mode="date"
+            maximumDate={new Date()}
+            date={form.dob || new Date()}
+            onConfirm={(date: Date) => {
+              setForm(prev => ({ ...prev, dob: date }));
+              setShowDatePicker(false);
+            }}
+            onCancel={() => setShowDatePicker(false)}
+          />
+        </>
+      )}
+
+      {step === 4 && (
+        <>
+          <Text style={styles.subHeader}>Select up to 5 interests</Text>
+          <ScrollView contentContainerStyle={styles.interestContainer} showsVerticalScrollIndicator={false}>
+            {FED_POLICY_AREAS.map((area) => {
+              const selected = form.interests.includes(area);
+              return (
+                <TouchableOpacity
+                  key={area}
+                  style={selected && styles.selectedTile}
+                  onPress={() => toggleInterest(area)}
+                >
+                  <BlurView intensity={selected ? 50 : 20} tint="dark" style={styles.interestTile}>
                     <Text style={[styles.interestText, selected && styles.selectedText]}>
                       {area}
                     </Text>
-                    </BlurView>
-                  </TouchableOpacity>
-                );
-              })}
-            </ScrollView>
-          </>
-        )}
+                  </BlurView>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+        </>
+      )}
 
-        <View style={styles.navigationRow}>
-          {step > 1 && (
-            <TouchableOpacity onPress={handleBack}>
-              <BlurView intensity={20} tint="dark" style={styles.navButtonSecondary}>
-                <Text style={styles.navText}>Back</Text>
-              </BlurView>
-            </TouchableOpacity>
-          )}
-          <TouchableOpacity onPress={handleNext}>
-            <BlurView intensity={20} tint="dark" style={styles.navButtonPrimary}>
-            <Text style={styles.navText}>{step < 4 ? "Next" : "Finish"}</Text>
+      <View style={styles.navigationRow}>
+        {step > 1 && (
+          <TouchableOpacity onPress={handleBack}>
+            <BlurView intensity={20} tint="dark" style={styles.navButtonSecondary}>
+              <Text style={styles.navText}>Back</Text>
             </BlurView>
           </TouchableOpacity>
-        </View>
+        )}
+        <TouchableOpacity onPress={handleNext}>
+          <BlurView intensity={20} tint="dark" style={styles.navButtonPrimary}>
+            <Text style={styles.navText}>{step < 4 ? "Next" : "Finish"}</Text>
+          </BlurView>
+        </TouchableOpacity>
       </View>
-      </SafeAreaView>
-  );
+    </View>
+  </SafeAreaView>
+);
 }
 
 const styles = StyleSheet.create({
@@ -272,7 +273,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: "rgba(255, 255, 255, 0.5)",
     color: "white",
-    overflow: "hidden", 
+    overflow: "hidden",
     borderRadius: 100,
     padding: 10,
     fontSize: 16,

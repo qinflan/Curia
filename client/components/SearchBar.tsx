@@ -43,6 +43,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
                 onChangeText={setKeywords}
                 value={keywords}
                 placeholder="search bills"
+                placeholderTextColor={"#747474ff"}
                 onSubmitEditing={handleSearchBills}
             />
             { keywords.length > 0 && (
@@ -71,11 +72,11 @@ const styles = StyleSheet.create({
     },
     textInput: {
         flex: 1,
-        padding: 8,
+        padding: 12,
         borderRadius: 12,
-        fontFamily: 'InterSemiBold',
-        letterSpacing: -0.4,
-        fontSize: 14
+        fontFamily: 'InterRegular',
+        letterSpacing: -0.2,
+        fontSize: 15
     },
     searchBtn: {
         paddingHorizontal: 8,

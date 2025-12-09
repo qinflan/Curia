@@ -2,7 +2,7 @@ import axios from "axios";
 import { logoutUser } from "./authHandler";
 import { getToken, saveToken } from "./tokenStorage";
 
-const API_BASE_URL = "http://ec2-18-205-41-149.compute-1.amazonaws.com/api"
+const API_BASE_URL = "http://ec2-18-205-41-149.compute-1.amazonaws.com:3000/api"
 
 export const api = axios.create({
   baseURL: API_BASE_URL,

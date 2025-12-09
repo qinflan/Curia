@@ -208,24 +208,24 @@ const styles = StyleSheet.create({
     },
 
     title: {
-        fontSize: 14,
+        fontSize: 16,
         marginBottom: 6,
         fontFamily: "InterSemiBold",
         letterSpacing: -0.5
     },
 
     subheader: {
-        fontSize: 12,
+        fontSize: 14,
         fontFamily: 'InterSemiBold',
-        marginBottom: 12,
+        marginBottom: 24,
         color: "#000000d4",
         letterSpacing: -0.5
     },
 
     caption: {
-        fontSize: 12,
-        marginBottom: 12,
-        fontFamily: "InterRegular",
+        fontSize: 14,
+        marginBottom: 24,
+        fontFamily: "InterLight",
         letterSpacing: -0.4,
     },
 
@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         fontFamily: "InterSemiBold",
-        fontSize: 12,
+        fontSize: 14,
         marginBottom: 8
     },
 
@@ -289,7 +289,7 @@ const styles = StyleSheet.create({
         borderRadius: 50,
         width: '100%',
         flexDirection: 'row',
-        marginBottom: 12,
+        marginBottom: 18,
     },
 
     partisanBar: {
@@ -305,6 +305,7 @@ const styles = StyleSheet.create({
     },
 
     timelineContainer: {
+        marginTop: 10,
         maxHeight: 300,
     },
 

@@ -9,7 +9,7 @@ const SpinnerFallback = () => {
         alignItems: "center",
       }}
     >
-      <ActivityIndicator />
+      <ActivityIndicator color={"#8b8b8bff"}/>
     </View>
   );
 }

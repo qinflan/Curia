@@ -1,5 +1,5 @@
 import { api } from './axiosInterceptor';
-import { saveToken, getToken, deleteToken } from './tokenStorage';
+import { saveToken, deleteToken } from './tokenStorage';
 
 // auth functions
 export const loginUser = async (email: string, password: string) => {

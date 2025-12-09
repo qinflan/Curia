@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
   },
 
   headerText: {
-    fontSize: 20,
+    fontSize: 22,
     marginBottom: 16,
     fontFamily: 'InterSemiBold',
     letterSpacing: -0.8,
@@ -181,16 +181,16 @@ const styles = StyleSheet.create({
   },
 
   caption: {
-    fontSize: 12,
+    fontSize: 16,
     marginBottom: 12,
     fontFamily: "InterRegular",
     letterSpacing: -0.4,
   },
 
   navigateButton: {
-    borderRadius: 14,
+    borderRadius: 16,
     paddingHorizontal: 26,
-    paddingVertical: 12,
+    paddingVertical: 16,
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
@@ -199,15 +199,14 @@ const styles = StyleSheet.create({
 
   navigateButtonText: {
     fontFamily: "InterSemiBold",
-    letterSpacing: -0.5,
+    letterSpacing: -0.4,
     color: "white",
-    fontSize: 12
+    fontSize: 14
   },
   
   repButton: {
     flexDirection: "row",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    padding: 12,
     marginHorizontal: 4,
     borderRadius: 12,
     backgroundColor: "#ffffffff",
@@ -227,14 +226,14 @@ const styles = StyleSheet.create({
     fontFamily: "InterSemiBold",
     letterSpacing: -0.5,
     color: "black",
-    fontSize: 14
+    fontSize: 16
   },
 
   repPartyText: {
     fontFamily: "InterRegular",
     letterSpacing: -0.2,
     color: "black",
-    fontSize: 12
+    fontSize: 14
   }
 
 });

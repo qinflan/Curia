@@ -32,32 +32,6 @@ const SavedBillWidget: React.FC<BillWidgetProps> = ({bill, user}) => {
     const [likes, setLikes] = useState(bill.likes);
     const [dislikes, setDislikes] = useState(bill.dislikes);
 
-    // const timelineData = useMemo(() => {
-    // if (!bill.status.timeline?.length) return [];
-
-    // const sorted = [...bill.status.timeline].sort(
-    //     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-    // );
-
-    // // Track how many actions we've seen per date to add counter for duplicates
-    // const dateCountMap: Record<string, number> = {};
-
-    // return sorted.map((t, index) => {
-    //     const dateStr = new Date(t.date).toLocaleDateString();
-    //     dateCountMap[dateStr] = (dateCountMap[dateStr] || 0) + 1;
-    //     const countForDate = dateCountMap[dateStr];
-        
-    //     const uniqueStatus = `${bill._id}-${t.date}-${index}`;
-    //     const titleWithCounter = countForDate > 1 ? `${dateStr} (${countForDate})` : dateStr;
-
-    //         return {
-    //             title: titleWithCounter,
-    //             subtitle: `${t.status} - ${t.chamber}`,
-    //             status: uniqueStatus,
-    //         };
-    //     });
-    //   }, [bill]);
-
     // optimistic UI update handlers
     const handleLike = async () => {
         if (liked) {
@@ -152,14 +126,14 @@ const styles = StyleSheet.create({
     },
 
     title: {
-        fontSize: 14,
+        fontSize: 16,
         marginBottom: 6,
         fontFamily: "InterSemiBold",
         letterSpacing: -0.5
     },
 
     subheader: {
-        fontSize: 12,
+        fontSize: 14,
         fontFamily: 'InterSemiBold',
         marginBottom: 12,
         color: "#000000d4",

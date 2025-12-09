@@ -13,7 +13,7 @@ export default function Header() {
         <View style={styles.container}>
           <Logo width={68} height={68} style={styles.logo} />
           <TouchableOpacity style={styles.bellIcon} onPress={() => router.push('/inbox')}>
-            <Ionicons name="notifications-outline" size={22} color="black" />
+            <Ionicons name="notifications-outline" size={25} color="black" />
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -27,7 +27,6 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
     top: 0,
     width: "100%",
     height: 45,
@@ -38,7 +37,7 @@ const styles = StyleSheet.create({
 
   logo: {
     width: "100%",
-
+    marginLeft: 30
   },
 
   bellIcon: {

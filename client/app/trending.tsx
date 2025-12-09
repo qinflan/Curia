@@ -8,10 +8,7 @@ import SpinnerFallback from "@/components/SpinnerFallback";
 
 export default function TrendingBills() {
   const [bills, setBills] = useState<Bill[]>([]);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [user, setUser] = useState<{
     savedBills: string[];
@@ -32,25 +29,14 @@ export default function TrendingBills() {
     loadUser();
   }, []);
 
-  const loadTrendingBills = useCallback(async (pageNumber = 1) => {
+  const loadTrendingBills = useCallback(async () => {
     try {
-      const response = await fetchTrendingBills(pageNumber);
-      const newBills = response.data;
-
-      if (pageNumber === 1) {
-        setBills(newBills);
-      } else {
-        setBills(prev => [...prev, ...newBills]);
-      }
-
-      setHasMore(newBills.length > 0);
-      setPage(pageNumber);
-      
+      const bills = await fetchTrendingBills();
+      setBills(bills);
     } catch (error) {
       console.error("Error fetching trending bills:", error);
     } finally {
       setLoading(false);
-      setLoadingMore(false);
     }
   }, []);
 
@@ -63,11 +49,6 @@ export default function TrendingBills() {
     await loadTrendingBills();
     setRefreshing(false);
   }, [loadTrendingBills]);
-
-    const loadMore = () => {
-    if (loadingMore || !hasMore) return;
-    loadTrendingBills(page + 1);
-  };
 
   if (loading) {
     return (
@@ -91,11 +72,7 @@ export default function TrendingBills() {
       }
       showsVerticalScrollIndicator={false}
       contentContainerStyle={styles.billsContainer}
-      onEndReached={loadMore }
       onEndReachedThreshold={0.5}
-      ListFooterComponent={
-        loadingMore ? <SpinnerFallback /> : null
-      }
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
     />
   );  

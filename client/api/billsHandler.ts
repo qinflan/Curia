@@ -22,13 +22,12 @@ export const unsaveBill = async (billId: string) => {
 }
 
 export const fetchRecommendedBills = async (page: number) => {
-    console.log(page);
     const response = await api.get(`/bills/recommendations`, { params: { page, limit: 25 } });
     return response.data;
 }
 
-export const fetchTrendingBills = async (page: number) => {
-    const response = await api.get(`/bills/trending`, { params: { page, limit: 25} });
+export const fetchTrendingBills = async () => {
+    const response = await api.get(`/bills/trending`);
     return response.data;
 }
 
