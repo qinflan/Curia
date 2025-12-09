@@ -10,7 +10,6 @@ module.exports = async function paginateAggregation(Model, aggregationPipeline,
 
     const paginatedPipeline = [
         ...aggregationPipeline,
-        { $sort: { createdAt: -1, _id: 1 } },
         { $skip: skip },
         { $limit: limit }
     ];
