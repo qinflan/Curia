@@ -235,11 +235,7 @@ class BillService {
                 { $sort: { engagement: -1 } },
                 { $limit: 100 }
             ]);
-
-            const page = Number(req.query.page) || 1;
-            const limit = Number(req.query.limit) || 100;
-
-            const bills = await paginateAggregation(Bill, pipeline, { page, limit });
+            const bills = await Bill.aggregate(pipeline);
             res.status(200).json(bills);
         } catch (error) {
             return res.status(500).json({ message: 'Server error', error });
