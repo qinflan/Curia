@@ -166,7 +166,7 @@ const enrichBills = async (apiBills) => {
                     $set: {
                         title: b.title,
                         originChamber: b.originChamber,
-                        updateDate: b.updateDate,
+                        updateDate: new Date(b.updateDate),
                         latestAction,
                         document: pdfTextUrl,
                         type: b.type,
@@ -227,7 +227,7 @@ const normalizeActions = (actions) => {
         .filter(a => a.actionCode && a.actionDate)
         .map(a => ({
             actionCode: a.actionCode,
-            actionDate: a.actionDate,
+            actionDate: new Date(a.actionDate),
             type: a.type,
             text: a.text,
         }))

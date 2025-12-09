@@ -7,7 +7,7 @@ const { ACTION_CODE_MAP } = require('../scripts/constants');
  * @returns {{
  *   currentStatus: string,
  *   currentChamber: string,
- *   timeline: { chamber: string, status: string, date: string }[]
+ *   timeline: { chamber: string, status: string, date: Date }[]
  * }}
  */
 function normalizeBillStatus(actions = [], billType = "") {
@@ -41,10 +41,10 @@ function normalizeBillStatus(actions = [], billType = "") {
     if (mappedStatus.includes("senate")) chamber = "Senate";
     else if (mappedStatus.includes("house")) chamber = "House";
 
-    // prevent deuplicate timeline entries since actions can be repetitive
+    // prevent duplicate timeline entries since actions can be repetitive
     if (
       !timeline.some(
-        (t) => t.chamber === chamber && t.status === mappedStatus && t.date === actionDate
+        (t) => t.chamber === chamber && t.status === mappedStatus && t.date.getTime() === actionDate.getTime()
       )
     ) {
       timeline.push({ date: actionDate, chamber, status: mappedStatus });

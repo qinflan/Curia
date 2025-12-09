@@ -6,10 +6,10 @@ const billSchema = new mongoose.Schema({
   type: String,
   title: String,
   originChamber: String,
-  updateDate: String,
+  updateDate: Date,
   latestAction: {
     actionCode: { type: String, default: null },
-    actionDate: { type: String, default: null },
+    actionDate: { type: Date, default: null },
     text: { type: String, default: null },
     type: { type: String, default: null },
   },
@@ -34,18 +34,18 @@ const billSchema = new mongoose.Schema({
   }],
   actions: [{
     actionCode: {type: String, default: null},
-    actionDate: {type: String, default: null},
+    actionDate: {type: Date, default: null},
     text: {type: String, default: null},
     type: {type: String, default: null},
   }],
-  // refactor status normalization to use action code mapping
+
   status: {
     currentChamber: String,
     currentStatus: String,
     timeline: [{
       chamber: String,
       status: String,
-      date: String,
+      date: Date,
     }],
     becameLaw: Boolean,
     vetoed: Boolean,

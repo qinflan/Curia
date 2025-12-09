@@ -59,6 +59,9 @@ module.exports.buildBillAggregation = function (initialStages = []) {
             $match: { shortSummary: { $exists: true, $ne: "" } } 
         },
 
+        // sort by latest action date descending
+        { $sort: { "latestAction.actionDate": -1 } },
+
         // Final shape
         {
             $project: {
